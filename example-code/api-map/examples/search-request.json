@@ -1,0 +1,16 @@
+{
+  "textQuery": {
+    "input": "DynamoDB global secondary index"
+  },
+  "contextAttributes": [
+    {
+      "key": "domain",
+      "value": "docs.aws.amazon.com"
+    }
+  ],
+  "acceptSuggestionBody": "RawText",
+  "locales": [
+    "en_us"
+  ],
+  "maxResults": 10
+}

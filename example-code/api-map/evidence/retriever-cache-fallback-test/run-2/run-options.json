@@ -1,0 +1,11 @@
+{
+  "prefer": "",
+  "apiResults": 1,
+  "limit": 1,
+  "download": 1,
+  "cache": {
+    "enabled": true,
+    "directory": "api-map/evidence/retriever-cache-fallback-test/cache",
+    "ttlSeconds": 3600
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "query": "aws s3api put-bucket-versioning command options",
+  "queryId": "2206559d-7c74-42d2-8e54-add4b7ffe2f3",
+  "endpoint": "https://proxy.search.docs.aws.com/search",
+  "suggestions": {
+    "requested": 1,
+    "returned": 1,
+    "included": 1
+  },
+  "documents": [
+    {
+      "rank": 1,
+      "searchUrl": "https://docs.aws.amazon.com/cli/v1/reference/s3control/put-bucket-versioning.html",
+      "fetchedUrl": "https://docs.aws.amazon.com/cli/v1/reference/s3control/put-bucket-versioning.html",
+      "format": "html-to-markdown",
+      "cache": "miss",
+      "file": "api-map/evidence/retriever-cache-fallback-test/run-1/documents/001-put-bucket-versioning-aws-cli-1-46-0-command-reference.md",
+      "sha256": "8a545a1549bd3e0955372197053f4f8aac503b46179ecd6ef72fea8876981834",
+      "bytes": 14848
+    }
+  ]
+}

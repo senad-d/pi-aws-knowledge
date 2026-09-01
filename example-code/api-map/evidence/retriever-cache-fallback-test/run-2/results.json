@@ -1,0 +1,16 @@
+[
+  {
+    "rank": 1,
+    "endpointRank": 1,
+    "title": "put-bucket-versioning — AWS CLI 1.46.0 Command Reference",
+    "url": "https://docs.aws.amazon.com/cli/v1/reference/s3control/put-bucket-versioning.html",
+    "summary": "Use the AWS CLI 1.46.0 to run the s3control put-bucket-versioning command.",
+    "excerpt": "The following operations are related to PutBucketVersioning for S3 on Outposts.",
+    "product": "AWS CLI",
+    "guide": "API Reference",
+    "isCitable": true,
+    "sourceCreatedAt": null,
+    "sourceUpdatedAt": 1785973815438,
+    "preferenceMatch": null
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "query": "Lambda SnapStart",
+  "queryId": "c7b560a1-6522-484b-beb6-712b92e9a71c",
+  "endpoint": "https://proxy.search.docs.aws.com/search",
+  "suggestions": {
+    "requested": 2,
+    "returned": 2,
+    "included": 2
+  },
+  "documents": []
+}

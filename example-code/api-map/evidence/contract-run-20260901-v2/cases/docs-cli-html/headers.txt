@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 35515
+Connection: keep-alive
+Date: Tue, 01 Sep 2026 16:56:44 GMT
+Accept-Ranges: bytes
+Server: Server
+Cache-Control: max-age=300, stale-if-error=600
+X-Frame-Options: SAMEORIGIN
+Strict-Transport-Security: max-age=47304000; includeSubDomains
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+X-Content-Type-Options: nosniff
+Content-Security-Policy: upgrade-insecure-requests;      script-src 'self' 'unsafe-inline' blob:        *.awsstatic.com        *.cdn.uis.awsstatic.com        *.cdn.console.awsstatic.com        d2c.aws.amazon.com        a0.awsstatic.com        *.feedback.console.aws.dev        *.shortbread.aws.dev        *.awswaf.com        *.contentsquare.net        app.contentsquare.com;      object-src 'none';
+Last-Modified: Mon, 31 Aug 2026 23:05:15 GMT
+ETag: "bZNMlsuBhklL8L4SiwjlR69V86U="
+Vary: Accept,Accept-Encoding
+X-Cache: Miss from cloudfront
+Via: 1.1 4077d2044c7730bc5c47619dce919130.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: DUB56-P4
+X-Amz-Cf-Id: O9oCO06elZg0XYosGcqsreSZVPi4WldGYj25jf8kA9l94ZIK31cXQQ==
+

@@ -1,0 +1,9 @@
+HTTP/2 403 
+date: Tue, 01 Sep 2026 16:53:41 GMT
+content-type: application/json
+content-length: 42
+x-amzn-requestid: d3030f74-24a4-490c-9f81-5ae048cd0438
+x-amzn-errortype: MissingAuthenticationTokenException
+x-amz-apigw-id: DB1rdGASvHcEHyA=
+x-amzn-trace-id: Root=1-6a970315-781060c02d5602276c6e6bbf
+

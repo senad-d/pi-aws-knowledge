@@ -1,0 +1,11 @@
+{
+  "prefer": "",
+  "apiResults": 1,
+  "limit": 1,
+  "download": 1,
+  "cache": {
+    "enabled": false,
+    "directory": ".cache/aws-docs",
+    "ttlSeconds": 3600
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "textQuery": {
+    "input": "S3 versioning"
+  },
+  "contextAttributes": [
+    {
+      "key": "domain",
+      "value": "docs.aws.amazon.com"
+    },
+    {
+      "key": "aws-docs-search-product",
+      "value": "Amazon Simple Storage Service"
+    }
+  ],
+  "acceptSuggestionBody": "RawText",
+  "locales": [
+    "en_us"
+  ],
+  "maxResults": 1
+}

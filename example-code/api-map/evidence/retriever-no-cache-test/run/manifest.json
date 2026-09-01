@@ -1,0 +1,22 @@
+{
+  "query": "S3 versioning",
+  "queryId": "a0536f06-0267-41b6-92ae-59232b773aba",
+  "endpoint": "https://proxy.search.docs.aws.com/search",
+  "suggestions": {
+    "requested": 1,
+    "returned": 1,
+    "included": 1
+  },
+  "documents": [
+    {
+      "rank": 1,
+      "searchUrl": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/versioning-workflows.html",
+      "fetchedUrl": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/versioning-workflows.md",
+      "format": "markdown",
+      "cache": "disabled",
+      "file": "api-map/evidence/retriever-no-cache-test/run/documents/001-how-s3-versioning-works-amazon-simple-storage-service.md",
+      "sha256": "aa6587663f9189acc2c72c9767db374de9678080116c5353a46facd68e734831",
+      "bytes": 8814
+    }
+  ]
+}

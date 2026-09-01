@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="service-name" content="AWS Documentation Search" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="upgrade-insecure-requests; default-src 'self' data:; script-src 'self' 'unsafe-inline' blob: *.awsstatic.com *.cdn.uis.awsstatic.com *.cdn.console.awsstatic.com *.d2c.marketing.aws.dev *.federate.amazon.com midway-auth.amazon.com *.panorama.console.api.aws *.awswaf.com *.contentsquare.net app.contentsquare.com; object-src 'none'; connect-src 'self' *.a2z.com *.aws.amazon.com *.amazonaws.com midway-auth.amazon.com *.agentic.docs.aws.dev search.agentic.docs.aws.com proxy.search.docs.aws.com search.autosuggest.docs.aws.com telemetry-api.docs.aws.amazon.com *.search.docs.aws.a2z.com dataplane.rum.us-west-2.amazonaws.com cognito-identity.us-west-2.amazonaws.com prod.log.shortbread.aws.dev prod.tools.shortbread.aws.dev *.dse.marketing.aws.a2z.com *.analytics.console.aws.a2z.com *.docs.aws.dev https://*.feature-flags.docs.aws.dev https://feature-flags.docs.aws.com *.contentsquare.net *.awswaf.com *.omtrdc.net *.d2c.marketing.aws.dev; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: *.awsstatic.com *.contentsquare.net *.omtrdc.net;"
+    />
+    <base href="/" />
+    <link rel="icon" type="image/ico" href="assets/images/favicon.ico" />
+    <link
+      rel="shortcut icon"
+      type="image/ico"
+      href="assets/images/favicon.ico"
+    />
+    <title></title>
+  <script defer src="../assets/r/vendor3.a566b40a4529f3afff4d.js"></script><script defer src="../assets/r/resources.1bd7039cf0a61370dc87.js"></script><script defer src="../assets/r/metadata.7e746b410cb648700c6e.js"></script><script defer src="../assets/r/9436.22058d771228b74ef6cc.js"></script><script defer src="../assets/r/4313.623002193c7d3f4e60f8.js"></script><script defer src="../assets/r/9181.348e8d9ee6f50b95aa64.js"></script><script defer src="../assets/r/5720.5b87169fc415f33349bd.js"></script><script defer src="../assets/r/1818.1331028bf60164037d10.js"></script><script defer src="../assets/r/9251.b13f1943403f80bd5eaa.js"></script><script defer src="../assets/r/1066.2f47dbe10dcc625eb102.js"></script><script defer src="../assets/r/7861.34f5e9f1585bda8a8621.js"></script><script defer src="../assets/r/9149.a9ee240c5c31be473fcb.js"></script><script defer src="../assets/r/458.fcb45463e7ec7a627c57.js"></script><script defer src="../assets/r/2043.a727a175c0bcf7b3e261.js"></script><script defer src="../assets/r/6208.833abb55ebdafc16b187.js"></script><script defer src="../assets/r/5999.4c2ccd2e93310a9a849e.js"></script><script defer src="../assets/r/8903.a02f423e75eee601b1e3.js"></script><script defer src="../assets/r/4628.23229649d886a5948199.js"></script><script defer src="../assets/r/3573.da05b3483bd0bdc7c75d.js"></script><script defer src="../assets/r/387.81545c10dad11bed41a5.js"></script><script defer src="../assets/r/9305.9ea89df4ec6244926de2.js"></script><script defer src="../assets/r/4112.3d6a4767428dcd93642b.js"></script><script defer src="../assets/r/2113.8c603110e3a1015dfe01.js"></script><script defer src="../assets/r/awsdocs-search-page.c05d5cb747649f75af10.js"></script><link href="../assets/r/9436.7a7066ec6a26da266c99.css" rel="stylesheet"><link href="../assets/r/4313.6ea4337b657bfa7d1388.css" rel="stylesheet"><link href="../assets/r/9181.62b7892d9b6b13f28cf1.css" rel="stylesheet"><link href="../assets/r/5720.b26a5459b32a85afc95d.css" rel="stylesheet"><link href="../assets/r/9251.f9dc78d47cbb57693c8f.css" rel="stylesheet"><link href="../assets/r/9149.95089c39bd6b1163cc81.css" rel="stylesheet"><link href="../assets/r/2043.54f9c0a7512297f93bc9.css" rel="stylesheet"><link href="../assets/r/6208.002673cd0ee20db1599e.css" rel="stylesheet"><link href="../assets/r/5999.db1fd9fe491f2d352ac2.css" rel="stylesheet"><link href="../assets/r/8903.bbc1cd86ee998dbbf0f9.css" rel="stylesheet"><link href="../assets/r/awsdocs-search-page.bc2b452ee539ea11f7a9.css" rel="stylesheet"></head>
+  <body>
+    <div id="searchPage"></div>
+  </body>
+</html>

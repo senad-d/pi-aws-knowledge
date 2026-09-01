@@ -1,0 +1,30 @@
+case	method	url	curl_exit	http_status	content_type	bytes	suggestion_count	message
+options	OPTIONS	https://proxy.search.docs.aws.com/search	0	204		0		
+get	GET	https://proxy.search.docs.aws.com/search	0	403	application/json	42		Missing Authentication Token 
+head	HEAD	https://proxy.search.docs.aws.com/search	0	403	application/json	0		
+put	PUT	https://proxy.search.docs.aws.com/search	0	403	application/json	42		Missing Authentication Token 
+post-valid	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	94132	100	 
+post-valid-session	POST	https://proxy.search.docs.aws.com/search?session=00000000-0000-4000-8000-000000000000	0	200	application/json	94335	100	 
+post-arbitrary-session	POST	https://proxy.search.docs.aws.com/search?session=not-a-uuid	0	200	application/json	94413	100	 
+post-unknown-query-param	POST	https://proxy.search.docs.aws.com/search?unknown=value	0	200	application/json	94413	100	 
+post-no-content-type	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	94413	100	 
+post-text-content-type	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	94132	100	 
+post-empty-object	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-malformed-json	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-minimal	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	157522	100	 
+post-no-text-query	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-empty-input	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-whitespace-input	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-no-context	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-empty-context	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-wrong-domain	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	134	0	 
+post-empty-locales	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	157522	100	 
+post-de-locale	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	111621	80	 
+post-bogus-locale	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-bogus-accept	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-identity	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	162030	100	 
+post-unknown-body-field	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	157522	100	 
+post-page-size-field	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	158056	100	 
+post-product-filter	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	125326	100	 
+post-guide-filter	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	116800	100	 
+post-invalid-product-filter	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	134	0	 

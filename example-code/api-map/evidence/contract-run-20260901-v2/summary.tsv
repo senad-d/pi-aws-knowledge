@@ -1,0 +1,55 @@
+case	method	url	curl_exit	http_status	content_type	bytes	suggestion_count	message
+options	OPTIONS	https://proxy.search.docs.aws.com/search	0	204		0		
+get	GET	https://proxy.search.docs.aws.com/search	0	403	application/json	42		Missing Authentication Token 
+head	HEAD	https://proxy.search.docs.aws.com/search	0	403	application/json	0		
+put	PUT	https://proxy.search.docs.aws.com/search	0	403	application/json	42		Missing Authentication Token 
+post-valid	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	94413	100	 
+post-valid-session	POST	https://proxy.search.docs.aws.com/search?session=00000000-0000-4000-8000-000000000000	0	200	application/json	94413	100	 
+post-arbitrary-session	POST	https://proxy.search.docs.aws.com/search?session=not-a-uuid	0	200	application/json	94413	100	 
+post-unknown-query-param	POST	https://proxy.search.docs.aws.com/search?unknown=value	0	200	application/json	94132	100	 
+post-no-content-type	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	94335	100	 
+post-text-content-type	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	94413	100	 
+post-empty-object	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-malformed-json	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-minimal	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	158056	100	 
+post-no-text-query	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-empty-input	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-whitespace-input	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-null-input	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-number-input	POST	https://proxy.search.docs.aws.com/search	0	502	application/json	36		Internal server error 
+post-no-context	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-empty-context	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-context-no-key	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-context-no-value	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-wrong-domain	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	134	0	 
+post-empty-locales	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	158056	100	 
+post-locale-de_de	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	135223	96	 
+post-locale-en_us	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	138390	100	 
+post-locale-es_es	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	128401	99	 
+post-locale-fr_fr	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	129264	97	 
+post-locale-id_id	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	122834	98	 
+post-locale-it_it	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	127174	98	 
+post-locale-ja_jp	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	171183	100	 
+post-locale-ko_kr	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	137215	100	 
+post-locale-pt_br	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	127917	98	 
+post-locale-zh_cn	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	155579	100	 
+post-locale-zh_tw	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	153693	100	 
+post-multiple-locales	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-bogus-locale	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-bogus-accept	POST	https://proxy.search.docs.aws.com/search	0	400	application/json	35		Invalid request body 
+post-identity	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	162030	100	 
+post-number-identity	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	162030	100	 
+post-unknown-body-field	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	157522	100	 
+post-page-size-field	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	157522	100	 
+post-max-results-field	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	2773	1	 
+post-product-filter	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	125326	100	 
+post-guide-filter	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	116592	100	 
+post-invalid-product-filter	POST	https://proxy.search.docs.aws.com/search	0	200	application/json	134	0	 
+search-ui	GET	https://docs.aws.amazon.com/search/doc-search.html?searchPath=documentation&searchQuery=Amazon%20S3	0	200	text/html	4227		
+autosuggest	GET	https://search.autosuggest.docs.aws.com/auto-suggest/Amazon%20S3	0	403	application/json	23		Forbidden 
+docs-user-guide-html	GET	https://docs.aws.amazon.com/AmazonS3/latest/userguide/versioning-workflows.html	0	200	text/html	24859		
+docs-user-guide-markdown	GET	https://docs.aws.amazon.com/AmazonS3/latest/userguide/versioning-workflows.md	0	200	text/markdown; charset=utf-8	8814		
+docs-cli-html	GET	https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-versioning.html	0	200	text/html	35515		
+docs-cli-markdown	GET	https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-versioning.md	0	404	text/html	1711		
+docs-cdk-html	GET	https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda.FunctionUrlAuthType.html	0	200	text/html	13929		
+docs-cdk-markdown	GET	https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda.FunctionUrlAuthType.md	0	404	text/html	1711		

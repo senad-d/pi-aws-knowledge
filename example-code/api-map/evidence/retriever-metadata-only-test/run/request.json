@@ -1,0 +1,16 @@
+{
+  "textQuery": {
+    "input": "Lambda SnapStart"
+  },
+  "contextAttributes": [
+    {
+      "key": "domain",
+      "value": "docs.aws.amazon.com"
+    }
+  ],
+  "acceptSuggestionBody": "RawText",
+  "locales": [
+    "en_us"
+  ],
+  "maxResults": 2
+}

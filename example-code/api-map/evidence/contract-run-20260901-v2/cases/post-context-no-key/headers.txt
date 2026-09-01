@@ -1,0 +1,11 @@
+HTTP/2 400 
+date: Tue, 01 Sep 2026 16:56:03 GMT
+content-type: application/json
+content-length: 35
+x-amzn-requestid: 12ebfd08-6a60-43e0-9f71-aba4882215f9
+access-control-allow-origin: *
+access-control-allow-headers: *
+x-amz-apigw-id: DB2BlHhCPHcEW4Q=
+x-amzn-trace-id: Root=1-6a9703a3-4547054e1c9eed9446c26fea
+access-control-allow-credentials: true
+

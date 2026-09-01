@@ -1,0 +1,32 @@
+{
+  "query": "S3 versioning",
+  "queryId": "e33eab93-38e3-4604-8e53-4c65a511d2a4",
+  "endpoint": "https://proxy.search.docs.aws.com/search",
+  "suggestions": {
+    "requested": 2,
+    "returned": 2,
+    "included": 2
+  },
+  "documents": [
+    {
+      "rank": 1,
+      "searchUrl": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/versioning-workflows.html",
+      "fetchedUrl": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/versioning-workflows.md",
+      "format": "markdown",
+      "cache": "miss",
+      "file": "api-map/evidence/retriever-cache-test/run-1/documents/001-how-s3-versioning-works-amazon-simple-storage-service.md",
+      "sha256": "aa6587663f9189acc2c72c9767db374de9678080116c5353a46facd68e734831",
+      "bytes": 8814
+    },
+    {
+      "rank": 2,
+      "searchUrl": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html",
+      "fetchedUrl": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.md",
+      "format": "markdown",
+      "cache": "miss",
+      "file": "api-map/evidence/retriever-cache-test/run-1/documents/002-retaining-multiple-versions-of-objects-with-s3-versioning-amazon-simpl.md",
+      "sha256": "d74cc7fb1d24e20277a5f00a465b31e257fc01042799f21a68503a754271901f",
+      "bytes": 5546
+    }
+  ]
+}

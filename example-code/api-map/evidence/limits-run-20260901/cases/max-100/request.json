@@ -1,0 +1,12 @@
+{
+  "textQuery": {
+    "input": "DynamoDB global secondary index"
+  },
+  "contextAttributes": [
+    {
+      "key": "domain",
+      "value": "docs.aws.amazon.com"
+    }
+  ],
+  "maxResults": 100
+}

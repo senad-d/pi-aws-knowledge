@@ -1,0 +1,17 @@
+HTTP/1.1 200 OK
+Content-Type: application/javascript
+Content-Length: 106240
+Connection: keep-alive
+x-amz-replication-status: COMPLETED
+Last-Modified: Tue, 01 Sep 2026 14:17:07 GMT
+x-amz-server-side-encryption: AES256
+x-amz-version-id: 2DC_.tpWughDgXJwxBdcFMwwr4d6xR1E
+Accept-Ranges: bytes
+Server: AmazonS3
+Date: Tue, 01 Sep 2026 17:01:42 GMT
+ETag: "40c7fc8581233c3fe30e6e0f96d55b2e"
+X-Cache: RefreshHit from cloudfront
+Via: 1.1 fea22f74d73ab228582fa004e813e998.cloudfront.net (CloudFront)
+X-Amz-Cf-Pop: DUB56-P4
+X-Amz-Cf-Id: wrjbvm1pCMpJzaqR11p1uvYoG89oIQ7c_jhzb3BWgC2JBZkAYkdq7w==
+
