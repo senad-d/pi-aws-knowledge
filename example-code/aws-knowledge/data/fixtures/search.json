@@ -1,0 +1,43 @@
+{
+  "fixture_version": "aws-knowledge-fixtures-v1",
+  "hits": [
+    {
+      "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html",
+      "title": "What is Amazon API Gateway?",
+      "context": "API Gateway helps you publish, maintain, monitor, and secure APIs at any scale.",
+      "topics": ["product", "api", "guides"]
+    },
+    {
+      "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-timeout.html",
+      "title": "Configure timeout for Lambda functions",
+      "context": "Control Lambda timeout values and avoid long-running invocations.",
+      "topics": ["product", "guides"]
+    },
+    {
+      "url": "https://docs.aws.amazon.com/lambda/latest/dg/welcome.html",
+      "title": "What is AWS Lambda?",
+      "context": "AWS Lambda runs code without provisioning or managing servers.",
+      "topics": ["product", "guides"]
+    },
+    {
+      "url": "https://repost.aws/knowledge-center/lambda-edge-logs",
+      "title": "Troubleshoot Lambda@Edge logs",
+      "context": "Find CloudWatch logs for Lambda@Edge in us-east-1 and debug invocation errors.",
+      "topics": ["api", "guides"]
+    },
+    {
+      "url": "sop://lambda-timeout-triage",
+      "title": "SOP: Lambda timeout triage",
+      "context": "Step-by-step playbook for Lambda timeout diagnostics and mitigations.",
+      "topics": ["agent_sops"],
+      "sop_name": "lambda-timeout-triage"
+    },
+    {
+      "url": "sop://multi-region-availability-review",
+      "title": "SOP: Multi-region availability review",
+      "context": "Checklist to validate product and API availability status before rollout.",
+      "topics": ["agent_sops"],
+      "sop_name": "multi-region-availability-review"
+    }
+  ]
+}

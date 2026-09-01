@@ -1,0 +1,14 @@
+{
+  "kind": "terraform-core",
+  "targets": [
+    { "name": "robots", "url": "https://developer.hashicorp.com/robots.txt", "contentTypes": ["text/plain"], "markers": [{"name":"user_agent","pattern":"User-agent"}] },
+    { "name": "terms", "url": "https://www.hashicorp.com/terms-of-service", "markers": [{"name":"main","pattern":"<main"}] },
+    { "name": "language-search", "url": "https://developer.hashicorp.com/terraform/search?query=count%20meta-argument", "markers": [{"name":"candidate_links","pattern":"/terraform/language/"}] },
+    { "name": "cli-search", "url": "https://developer.hashicorp.com/terraform/search?query=terraform%20plan", "markers": [{"name":"candidate_links","pattern":"/terraform/cli/"}] },
+    { "name": "language-latest", "url": "https://developer.hashicorp.com/terraform/language/meta-arguments/count", "markers": [{"name":"main","pattern":"<main"},{"name":"heading","pattern":"<h1"}] },
+    { "name": "language-exact", "url": "https://developer.hashicorp.com/terraform/language/v1.12.x/meta-arguments/count", "markers": [{"name":"version","pattern":"v1\\.12\\.x"}] },
+    { "name": "cli-latest", "url": "https://developer.hashicorp.com/terraform/cli/commands/plan", "markers": [{"name":"main","pattern":"<main"},{"name":"heading","pattern":"<h1"}] },
+    { "name": "cli-exact", "url": "https://developer.hashicorp.com/terraform/cli/v1.12.x/commands/plan", "markers": [{"name":"version","pattern":"v1\\.12\\.x"}] },
+    { "name": "unsupported-version", "url": "https://developer.hashicorp.com/terraform/language/v0.0.x/meta-arguments/count", "markers": [] }
+  ]
+}

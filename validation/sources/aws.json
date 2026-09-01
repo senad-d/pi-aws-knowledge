@@ -1,0 +1,11 @@
+{
+  "kind": "aws",
+  "targets": [
+    { "name": "robots", "url": "https://docs.aws.amazon.com/robots.txt", "contentTypes": ["text/plain"], "markers": [{"name":"user_agent","pattern":"User-agent"}] },
+    { "name": "terms", "url": "https://aws.amazon.com/terms/", "markers": [{"name":"main","pattern":"<main"}] },
+    { "name": "search-unconstrained", "url": "https://docs.aws.amazon.com/search/doc-search.html?searchQuery=Amazon%20S3%20versioning", "markers": [{"name":"result_links","pattern":"AmazonS3/(?:latest/)?(?:userguide|API)/"}] },
+    { "name": "search-service", "url": "https://docs.aws.amazon.com/search/doc-search.html?searchPath=documentation-guide&searchQuery=Amazon%20S3%20versioning", "markers": [{"name":"result_links","pattern":"AmazonS3/(?:latest/)?(?:userguide|API)/"}] },
+    { "name": "s3-guide", "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html", "markers": [{"name":"main","pattern":"<main"},{"name":"heading","pattern":"<h1"}] },
+    { "name": "s3-api", "url": "https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html", "markers": [{"name":"main","pattern":"<main"},{"name":"heading","pattern":"<h1"}] }
+  ]
+}

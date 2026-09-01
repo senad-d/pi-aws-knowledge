@@ -1,0 +1,240 @@
+{
+  "source": "terraform-core",
+  "observed_at": "2026-09-01T08:59:21.031Z",
+  "targets": [
+    {
+      "outcome": "observed",
+      "name": "robots",
+      "requested": "https://developer.hashicorp.com/robots.txt",
+      "final": "https://developer.hashicorp.com/robots.txt",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 200,
+      "content_type": "text/plain",
+      "encoded_bytes": 198,
+      "decoded_bytes": 198,
+      "canonical": null,
+      "validators": {
+        "etag": true,
+        "last_modified": true,
+        "cache_control": "public, max-age=0, must-revalidate"
+      },
+      "latency_ms": 333,
+      "body_sha256": "dbc052c1ce223bc46d5d909ba08a49509a1246abd19d6b33a29d8c45641de9dc",
+      "markers": {
+        "user_agent": 1
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "terms",
+      "requested": "https://www.hashicorp.com/terms-of-service",
+      "final": "https://www.hashicorp.com/terms-of-service",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 429,
+      "content_type": "text/html",
+      "encoded_bytes": 33793,
+      "decoded_bytes": 33793,
+      "canonical": null,
+      "validators": {
+        "etag": false,
+        "last_modified": false,
+        "cache_control": "private, no-store, max-age=0"
+      },
+      "latency_ms": 147,
+      "body_sha256": "d57fa54e85177f2d1165f8544f1a51d5af59ada19dace53ea08e081c39afb7e1",
+      "markers": {
+        "main": 2
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "language-search",
+      "requested": "https://developer.hashicorp.com/terraform/search",
+      "final": "https://developer.hashicorp.com/terraform/search",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 404,
+      "content_type": "text/html",
+      "encoded_bytes": 13025,
+      "decoded_bytes": 58156,
+      "canonical": "https://developer.hashicorp.com/404",
+      "validators": {
+        "etag": true,
+        "last_modified": true,
+        "cache_control": "public, max-age=0, must-revalidate"
+      },
+      "latency_ms": 86,
+      "body_sha256": "216f5f775b93eaeccfe2dc2f159c42def0234e25a1621f9936941aeffd643a52",
+      "markers": {
+        "candidate_links": 0
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "cli-search",
+      "requested": "https://developer.hashicorp.com/terraform/search",
+      "final": "https://developer.hashicorp.com/terraform/search",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 404,
+      "content_type": "text/html",
+      "encoded_bytes": 13025,
+      "decoded_bytes": 58156,
+      "canonical": "https://developer.hashicorp.com/404",
+      "validators": {
+        "etag": true,
+        "last_modified": true,
+        "cache_control": "public, max-age=0, must-revalidate"
+      },
+      "latency_ms": 101,
+      "body_sha256": "216f5f775b93eaeccfe2dc2f159c42def0234e25a1621f9936941aeffd643a52",
+      "markers": {
+        "candidate_links": 0
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "language-latest",
+      "requested": "https://developer.hashicorp.com/terraform/language/meta-arguments/count",
+      "final": "https://developer.hashicorp.com/terraform/language/meta-arguments/count",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 200,
+      "content_type": "text/html",
+      "encoded_bytes": 35101,
+      "decoded_bytes": 238729,
+      "canonical": "https://developer.hashicorp.com/terraform/language/meta-arguments/count",
+      "validators": {
+        "etag": true,
+        "last_modified": false,
+        "cache_control": "public, max-age=0, must-revalidate"
+      },
+      "latency_ms": 92,
+      "body_sha256": "0f5f5b7307ee0602ca97eb8816a7106cd25282ab6ac0aa367ea07bb6cbf2560c",
+      "markers": {
+        "main": 1,
+        "heading": 1
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "language-exact",
+      "requested": "https://developer.hashicorp.com/terraform/language/v1.12.x/meta-arguments/count",
+      "final": "https://developer.hashicorp.com/terraform/language/v1.12.x/meta-arguments/count",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 200,
+      "content_type": "text/html",
+      "encoded_bytes": 33665,
+      "decoded_bytes": 224527,
+      "canonical": "https://developer.hashicorp.com/terraform/language/v1.12.x/meta-arguments/count",
+      "validators": {
+        "etag": true,
+        "last_modified": false,
+        "cache_control": "public, max-age=0, must-revalidate"
+      },
+      "latency_ms": 92,
+      "body_sha256": "69267290d81c4c2d2ca0ff8498dc2f6b51aa61507cfc988263d4ee7f0b4d0ee9",
+      "markers": {
+        "version": 547
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "cli-latest",
+      "requested": "https://developer.hashicorp.com/terraform/cli/commands/plan",
+      "final": "https://developer.hashicorp.com/terraform/cli/commands/plan",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 200,
+      "content_type": "text/html",
+      "encoded_bytes": 39840,
+      "decoded_bytes": 244693,
+      "canonical": "https://developer.hashicorp.com/terraform/cli/commands/plan",
+      "validators": {
+        "etag": true,
+        "last_modified": false,
+        "cache_control": "public, max-age=0, must-revalidate"
+      },
+      "latency_ms": 77,
+      "body_sha256": "a8acc233acdb92c84f12853ccb9cfbdc1f1dde00879284208e7d2dfbe646d922",
+      "markers": {
+        "main": 1,
+        "heading": 1
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "cli-exact",
+      "requested": "https://developer.hashicorp.com/terraform/cli/v1.12.x/commands/plan",
+      "final": "https://developer.hashicorp.com/terraform/cli/v1.12.x/commands/plan",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 200,
+      "content_type": "text/html",
+      "encoded_bytes": 38552,
+      "decoded_bytes": 228708,
+      "canonical": "https://developer.hashicorp.com/terraform/cli/v1.12.x/commands/plan",
+      "validators": {
+        "etag": true,
+        "last_modified": false,
+        "cache_control": "public, max-age=0, must-revalidate"
+      },
+      "latency_ms": 103,
+      "body_sha256": "f75b307170a1c029fa777b34b51e250338b379f113896bf4393fc09de6175b73",
+      "markers": {
+        "version": 338
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "unsupported-version",
+      "requested": "https://developer.hashicorp.com/terraform/language/v0.0.x/meta-arguments/count",
+      "final": "https://developer.hashicorp.com/terraform/language/v0.0.x/meta-arguments/count",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 404,
+      "content_type": "text/html",
+      "encoded_bytes": 1833,
+      "decoded_bytes": 5582,
+      "canonical": null,
+      "validators": {
+        "etag": true,
+        "last_modified": false,
+        "cache_control": "public, max-age=0, must-revalidate"
+      },
+      "latency_ms": 80,
+      "body_sha256": "caeb3f3032c1362fc2e54f5becb744d1d6f9b462ab982867ccddc5e01d56fc9a",
+      "markers": {}
+    }
+  ]
+}

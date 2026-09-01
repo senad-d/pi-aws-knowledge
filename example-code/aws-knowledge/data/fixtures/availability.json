@@ -1,0 +1,108 @@
+{
+  "fixture_version": "aws-knowledge-fixtures-v1",
+  "product": [
+    {
+      "id": "amazon-bedrock",
+      "name": "Amazon Bedrock",
+      "service": "bedrock",
+      "statuses": {
+        "us-east-1": "isAvailableIn",
+        "eu-west-1": "isBeingPlannedIn",
+        "ap-southeast-1": "isNotExpandingIn",
+        "sa-east-1": "isNotExpandingIn"
+      }
+    },
+    {
+      "id": "amazon-ec2",
+      "name": "Amazon EC2",
+      "service": "ec2",
+      "statuses": {
+        "us-east-1": "isAvailableIn",
+        "eu-west-1": "isAvailableIn",
+        "ap-southeast-1": "isBeingPlannedIn",
+        "sa-east-1": "isNotExpandingIn"
+      }
+    },
+    {
+      "id": "amazon-q-developer",
+      "name": "Amazon Q Developer",
+      "service": "q",
+      "statuses": {
+        "us-east-1": "isAvailableIn",
+        "eu-west-1": "isBeingPlannedIn",
+        "ap-southeast-1": "isBeingPlannedIn",
+        "sa-east-1": "isNotExpandingIn"
+      }
+    },
+    {
+      "id": "aws-lambda",
+      "name": "AWS Lambda",
+      "service": "lambda",
+      "statuses": {
+        "us-east-1": "isAvailableIn",
+        "eu-west-1": "isAvailableIn",
+        "ap-southeast-1": "isAvailableIn",
+        "sa-east-1": "isBeingPlannedIn"
+      }
+    }
+  ],
+  "api": [
+    {
+      "id": "ec2:runinstances",
+      "name": "RunInstances",
+      "service": "ec2",
+      "statuses": {
+        "us-east-1": "isAvailableIn",
+        "eu-west-1": "isAvailableIn",
+        "ap-southeast-1": "isAvailableIn",
+        "sa-east-1": "isNotExpandingIn"
+      }
+    },
+    {
+      "id": "lambda:invokefunction",
+      "name": "InvokeFunction",
+      "service": "lambda",
+      "statuses": {
+        "us-east-1": "isAvailableIn",
+        "eu-west-1": "isAvailableIn",
+        "ap-southeast-1": "isBeingPlannedIn",
+        "sa-east-1": "isNotExpandingIn"
+      }
+    },
+    {
+      "id": "qbusiness:chat",
+      "name": "Chat",
+      "service": "qbusiness",
+      "statuses": {
+        "us-east-1": "isPreviewIn",
+        "eu-west-1": "isBeingPlannedIn",
+        "ap-southeast-1": "isNotExpandingIn",
+        "sa-east-1": "isNotExpandingIn"
+      }
+    }
+  ],
+  "cfn": [
+    {
+      "id": "aws::ec2::instance",
+      "name": "AWS::EC2::Instance",
+      "service": "ec2",
+      "statuses": {
+        "us-east-1": "isAvailableIn",
+        "eu-west-1": "isAvailableIn",
+        "ap-southeast-1": "isAvailableIn",
+        "sa-east-1": "isAvailableIn"
+      }
+    },
+    {
+      "id": "aws::lambda::function",
+      "name": "AWS::Lambda::Function",
+      "service": "lambda",
+      "statuses": {
+        "us-east-1": "isAvailableIn",
+        "eu-west-1": "isAvailableIn",
+        "ap-southeast-1": "isAvailableIn",
+        "sa-east-1": "isBeingPlannedIn"
+      }
+    }
+  ]
+}

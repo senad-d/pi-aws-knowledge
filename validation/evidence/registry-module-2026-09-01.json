@@ -1,0 +1,225 @@
+{
+  "source": "registry-module",
+  "observed_at": "2026-09-01T08:59:18.235Z",
+  "targets": [
+    {
+      "outcome": "observed",
+      "name": "robots",
+      "requested": "https://registry.terraform.io/robots.txt",
+      "final": "https://registry.terraform.io/robots.txt",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 200,
+      "content_type": "text/plain",
+      "encoded_bytes": 75,
+      "decoded_bytes": 51,
+      "canonical": null,
+      "validators": {
+        "etag": false,
+        "last_modified": false,
+        "cache_control": "public, max-age=30, stale-if-error=86400"
+      },
+      "latency_ms": 211,
+      "body_sha256": "8a32bbf1becbbfca75df4b4a06048bdd6f76aa5dbe11761c3a2e95c642d532b9",
+      "markers": {
+        "user_agent": 1
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "terms",
+      "requested": "https://www.hashicorp.com/terms-of-service",
+      "final": "https://www.hashicorp.com/terms-of-service",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 429,
+      "content_type": "text/html",
+      "encoded_bytes": 33795,
+      "decoded_bytes": 33795,
+      "canonical": null,
+      "validators": {
+        "etag": false,
+        "last_modified": false,
+        "cache_control": "private, no-store, max-age=0"
+      },
+      "latency_ms": 136,
+      "body_sha256": "d9e01b9b1573b2e1dd642c34c9592e418d89380c4b425759216e0798a32c94e0",
+      "markers": {
+        "main": 2
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "api-docs",
+      "requested": "https://developer.hashicorp.com/terraform/registry/api-docs",
+      "final": "https://developer.hashicorp.com/terraform/registry/api-docs",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 200,
+      "content_type": "text/html",
+      "encoded_bytes": 38984,
+      "decoded_bytes": 531617,
+      "canonical": "https://developer.hashicorp.com/terraform/registry/api-docs",
+      "validators": {
+        "etag": true,
+        "last_modified": false,
+        "cache_control": "public, max-age=0, must-revalidate"
+      },
+      "latency_ms": 208,
+      "body_sha256": "9ea17b21b1d5fba2923fb1fdb42f0702aace11ddb9fe4bfe12f9e2a96e7c3e54",
+      "markers": {
+        "module_api": 26
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "search",
+      "requested": "https://registry.terraform.io/v1/modules/search",
+      "final": "https://registry.terraform.io/v1/modules/search",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "encoded_bytes": 433,
+      "decoded_bytes": 973,
+      "canonical": null,
+      "validators": {
+        "etag": false,
+        "last_modified": false,
+        "cache_control": "public, stale-if-error=31536000"
+      },
+      "latency_ms": 167,
+      "body_sha256": "bd7450adfa7b37f74642072ce1da258c2594e9d59b3244167a5c6319e0692b71",
+      "markers": {
+        "module_ids": 0
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "latest",
+      "requested": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws",
+      "final": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "encoded_bytes": 15287,
+      "decoded_bytes": 70909,
+      "canonical": null,
+      "validators": {
+        "etag": false,
+        "last_modified": false,
+        "cache_control": "public, stale-if-error=31536000"
+      },
+      "latency_ms": 147,
+      "body_sha256": "21a09a4c233b412c862ec1de9aa1677b95eeb6f44da95b8801ca10063a2146c0",
+      "markers": {
+        "readme": 7,
+        "version": 25
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "exact",
+      "requested": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws/0.11.0",
+      "final": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws/0.11.0",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "encoded_bytes": 15287,
+      "decoded_bytes": 70909,
+      "canonical": null,
+      "validators": {
+        "etag": false,
+        "last_modified": false,
+        "cache_control": "public, stale-if-error=31536000"
+      },
+      "latency_ms": 159,
+      "body_sha256": "21a09a4c233b412c862ec1de9aa1677b95eeb6f44da95b8801ca10063a2146c0",
+      "markers": {
+        "exact_version": 4
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "versions",
+      "requested": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws/versions",
+      "final": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws/versions",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 200,
+      "content_type": "application/json",
+      "encoded_bytes": 819,
+      "decoded_bytes": 39757,
+      "canonical": null,
+      "validators": {
+        "etag": false,
+        "last_modified": true,
+        "cache_control": "public, max-age=30, stale-while-revalidate=1800, stale-if-error=31536000"
+      },
+      "latency_ms": 31,
+      "body_sha256": "74515583979ea816eba7bdd09bcfd2f4a0d6b2f88b1c4be0900b709e7d1f2f9a",
+      "markers": {
+        "versions": 1
+      }
+    },
+    {
+      "outcome": "observed",
+      "name": "missing-exact",
+      "requested": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws/0.0.0-does-not-exist",
+      "final": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws/0.0.0-does-not-exist",
+      "redirects": [],
+      "dns": [
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4",
+        "public-ipv4"
+      ],
+      "status": 404,
+      "content_type": "application/json",
+      "encoded_bytes": 55,
+      "decoded_bytes": 31,
+      "canonical": null,
+      "validators": {
+        "etag": false,
+        "last_modified": false,
+        "cache_control": ""
+      },
+      "latency_ms": 136,
+      "body_sha256": "42e92989cb3a8719c61859c590d5514efbe11a87360833d929d3d4f5fb80dc5a",
+      "markers": {}
+    }
+  ]
+}

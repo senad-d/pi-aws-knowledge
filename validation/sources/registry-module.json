@@ -1,0 +1,13 @@
+{
+  "kind": "registry-module",
+  "targets": [
+    { "name": "robots", "url": "https://registry.terraform.io/robots.txt", "contentTypes": ["text/plain"], "markers": [{"name":"user_agent","pattern":"User-agent"}] },
+    { "name": "terms", "url": "https://www.hashicorp.com/terms-of-service", "markers": [{"name":"main","pattern":"<main"}] },
+    { "name": "api-docs", "url": "https://developer.hashicorp.com/terraform/registry/api-docs", "markers": [{"name":"module_api","pattern":"/v1/modules"}] },
+    { "name": "search", "url": "https://registry.terraform.io/v1/modules/search?q=consul&limit=2", "contentTypes": ["application/json"], "markers": [{"name":"module_ids","pattern":"hashicorp/consul/aws"}] },
+    { "name": "latest", "url": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws", "contentTypes": ["application/json"], "markers": [{"name":"readme","pattern":"readme"},{"name":"version","pattern":"version"}] },
+    { "name": "exact", "url": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws/0.11.0", "contentTypes": ["application/json"], "markers": [{"name":"exact_version","pattern":"0\\.11\\.0"}] },
+    { "name": "versions", "url": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws/versions", "contentTypes": ["application/json"], "markers": [{"name":"versions","pattern":"versions"}] },
+    { "name": "missing-exact", "url": "https://registry.terraform.io/v1/modules/hashicorp/consul/aws/0.0.0-does-not-exist", "contentTypes": ["application/json"], "markers": [] }
+  ]
+}
