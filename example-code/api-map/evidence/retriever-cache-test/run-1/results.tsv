@@ -1,3 +1,0 @@
-rank	endpoint_rank	preference_match	title	product	guide	url	summary
-1	1		How S3 Versioning works - Amazon Simple Storage Service	Amazon Simple Storage Service	User Guide	https://docs.aws.amazon.com/AmazonS3/latest/userguide/versioning-workflows.html	Describes how Amazon S3 versions objects and behavior.
-2	2		Retaining multiple versions of objects with S3 Versioning - Amazon Simple Storage Service	Amazon Simple Storage Service	User Guide	https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html	Use versioning in Amazon S3 to keep multiple variants of an object in the same bucket.

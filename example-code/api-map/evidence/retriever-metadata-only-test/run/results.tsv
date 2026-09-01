@@ -1,3 +1,0 @@
-rank	endpoint_rank	preference_match	title	product	guide	url	summary
-1	1		Activating and managing Lambda SnapStart - AWS Lambda	AWS Lambda	Developer Guide	https://docs.aws.amazon.com/lambda/latest/dg/snapstart-activate.html	Use the Lambda console, the AWS CLI, or the Lambda API to activate SnapStart on a Lambda function.
-2	2		Security model for Lambda SnapStart - AWS Lambda	AWS Lambda	Developer Guide	https://docs.aws.amazon.com/lambda/latest/dg/snapstart-security.html	Learn how Lambda encrypts snapshots when SnapStart is active.

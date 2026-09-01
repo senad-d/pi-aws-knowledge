@@ -1,1 +1,0 @@
-{"queryId":"2af3bcc5-3ef4-431f-9eb5-dde66dc2804d","suggestions":[],"facets":{"aws-docs-search-guide":[],"aws-docs-search-product":[]}}

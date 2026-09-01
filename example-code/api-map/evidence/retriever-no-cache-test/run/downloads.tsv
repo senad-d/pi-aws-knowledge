@@ -1,2 +1,0 @@
-rank	search_url	fetched_url	format	cache	file	sha256	bytes
-1	https://docs.aws.amazon.com/AmazonS3/latest/userguide/versioning-workflows.html	https://docs.aws.amazon.com/AmazonS3/latest/userguide/versioning-workflows.md	markdown	disabled	api-map/evidence/retriever-no-cache-test/run/documents/001-how-s3-versioning-works-amazon-simple-storage-service.md	aa6587663f9189acc2c72c9767db374de9678080116c5353a46facd68e734831	8814

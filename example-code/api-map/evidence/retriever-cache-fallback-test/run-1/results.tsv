@@ -1,2 +1,0 @@
-rank	endpoint_rank	preference_match	title	product	guide	url	summary
-1	1		put-bucket-versioning — AWS CLI 1.46.0 Command Reference	AWS CLI	API Reference	https://docs.aws.amazon.com/cli/v1/reference/s3control/put-bucket-versioning.html	Use the AWS CLI 1.46.0 to run the s3control put-bucket-versioning command.

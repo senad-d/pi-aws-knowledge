@@ -1,9 +1,0 @@
-HTTP/2 204 
-date: Tue, 01 Sep 2026 16:53:41 GMT
-x-amzn-requestid: ef3e45d1-0ad1-4bc8-b3f5-f722df3a5652
-access-control-allow-origin: *
-access-control-allow-headers: Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-Content-Sha256,X-Amz-User-Agent,amz-sdk-invocation-id,amz-sdk-request
-x-amz-apigw-id: DB1rXHgrvHcEvTA=
-access-control-allow-methods: POST
-x-amzn-trace-id: Root=1-6a970315-422f1d2a0293d6281f42a4d3
-
