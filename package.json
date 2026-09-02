@@ -1,13 +1,30 @@
 {
   "name": "pi-aws-knowledge",
   "version": "0.1.0",
-  "private": true,
+  "description": "A Pi extension for searching and retrieving official AWS documentation",
   "type": "module",
+  "files": [
+    "src",
+    "img"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/senad-d/pi-aws-knowledge.git"
+  },
+  "homepage": "https://github.com/senad-d/pi-aws-knowledge#readme",
+  "bugs": {
+    "url": "https://github.com/senad-d/pi-aws-knowledge/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=22.19.0"
   },
   "scripts": {
     "check": "npm run typecheck && npm test && npm run lint && npm run format:check && npm run smoke",
+    "prepublishOnly": "npm run release:check",
+    "release:check": "node -e \"const p=require('./package.json'); if(p.private || p.publishConfig?.access !== 'public' || !p.keywords?.includes('pi-package') || !p.pi?.extensions?.length) throw new Error('package is not configured as a public Pi package')\" && npm run check && npm pack --dry-run",
     "format": "biome format --write src tests package.json tsconfig.json biome.json eslint.config.js",
     "format:check": "biome format src tests package.json tsconfig.json biome.json eslint.config.js",
     "lint": "eslint src tests",
@@ -18,12 +35,16 @@
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
-    "pi-package"
+    "pi-package",
+    "pi-extension",
+    "aws",
+    "aws-documentation"
   ],
   "pi": {
     "extensions": [
       "./src/index.ts"
-    ]
+    ],
+    "image": "https://raw.githubusercontent.com/senad-d/pi-aws-knowledge/main/img/icon.png"
   },
   "peerDependencies": {
     "@earendil-works/pi-ai": "*",

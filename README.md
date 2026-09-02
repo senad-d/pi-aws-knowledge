@@ -43,6 +43,7 @@ Pi AWS Knowledge is a native Pi extension that registers one agent-callable tool
 - [Troubleshooting](#troubleshooting)
 - [Development](#development)
 - [Observed API Contract](#observed-api-contract)
+- [Publishing](#publishing)
 - [Update and Uninstall](#update-and-uninstall)
 
 ---
@@ -372,6 +373,28 @@ CI uses Node.js `22.19.0`, installs with `npm ci --ignore-scripts`, and runs `np
 The reverse-engineered OpenAPI description is stored at [`example-code/api-map/openapi.yaml`](example-code/api-map/openapi.yaml). It documents the request and response shape observed during direct probes, including locales, facets, limits, and error responses.
 
 Treat this map as implementation research, not an upstream guarantee. The extension validates the response shape it depends on and fails with an explicit `unexpected AWS documentation search response` error when that shape is incompatible.
+
+---
+
+## Publishing
+
+Publishing is handled by [`.github/workflows/publish.yml`](.github/workflows/publish.yml) from the repository's default branch. The workflow validates the public Pi package manifest and tarball, publishes the selected npm dist-tag with provenance, and creates the matching `v<version>` Git tag.
+
+For the first release:
+
+1. Create a GitHub environment named `npm` and apply the desired deployment protection rules.
+2. Add a granular npm publishing token as the `NPM_TOKEN` environment secret.
+3. Push the repository to `senad-d/pi-aws-knowledge` with `main` as its default branch.
+4. Run **Publish to npm** from GitHub Actions and select the intended dist-tag.
+5. In the published package's npm settings, configure [trusted publishing](https://docs.npmjs.com/trusted-publishers/) with:
+   - organization or user: `senad-d`;
+   - repository: `pi-aws-knowledge`;
+   - workflow filename: `publish.yml`;
+   - environment: `npm`;
+   - allowed action: `npm publish`.
+6. Remove the `NPM_TOKEN` secret. Later releases authenticate through GitHub OIDC.
+
+Each release requires a new version in `package.json`. The workflow refuses to overwrite an existing npm version or Git tag.
 
 ---
 
