@@ -11,8 +11,10 @@
     "format": "biome format --write src tests package.json tsconfig.json biome.json eslint.config.js",
     "format:check": "biome format src tests package.json tsconfig.json biome.json eslint.config.js",
     "lint": "eslint src tests",
-    "smoke": "pi -e . --list-models",
+    "smoke": "pi --no-extensions -e . --list-models",
     "test": "node --test tests/index.test.ts",
+    "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-include='src/**/*.ts' --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info tests/index.test.ts",
+    "test:live": "node --test tests/live.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
@@ -24,6 +26,7 @@
     ]
   },
   "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
     "@earendil-works/pi-coding-agent": "*"
   },
   "devDependencies": {

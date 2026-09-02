@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 400 400" role="img" aria-labelledby="title">
+  <title id="title">Circuit brain rising from an open book</title>
+  <rect width="400" height="400" fill="#232F3E"/>
+
+  <g fill="none" stroke="#01A98D" stroke-width="5" stroke-linejoin="miter">
+    <path d="M131 100V70l46-27 23 15 22-15 45 27v30l23 12v30"/>
+    <path d="M131 100l-23 12v31"/>
+    <path d="M177 43v57l-23 13"/>
+    <path d="M200 58v46l30 18"/>
+    <path d="M131 100l46 26v38l-23 14"/>
+    <path d="M108 143l46-30v35l-22 16"/>
+    <path d="M154 148l23 16"/>
+    <path d="M177 126l23 13v38"/>
+    <path d="M155 58v27M177 78v22"/>
+  </g>
+
+  <g fill="#232F3E" stroke="#01A98D" stroke-width="5">
+    <circle cx="245" cy="85" r="8"/>
+    <path d="M253 85h14"/>
+    <circle cx="230" cy="122" r="8"/>
+    <path d="M200 104l23 14"/>
+    <circle cx="260" cy="141" r="8"/>
+    <path d="M267 145l10 6"/>
+  </g>
+
+  <g fill="#232F3E" stroke="#FFFFFF" stroke-width="5" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M200 180L94 148v18"/>
+    <path d="M200 180l108-32v18"/>
+    <path d="M200 180L71 165v81M71 257v32M71 306v28l119 23V181"/>
+    <path d="M200 180l129-15v108M329 286v22M329 320v14l-119 23V181"/>
+    <path d="M190 181l10-1 10 1v176h-20z"/>
+    <path d="M190 198q10 5 20 0M190 337q10 5 20 0"/>
+  </g>
+</svg>
