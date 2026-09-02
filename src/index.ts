@@ -40,7 +40,7 @@ const LOCALES = [
 const searchParameters = Type.Object({
   query: Type.String({
     minLength: 1,
-    pattern: ".*\\S.*",
+    pattern: String.raw`.*\S.*`,
     description: "Text to find in AWS documentation",
   }),
   product: Type.Optional(Type.String({ description: "Exact AWS product facet" })),
@@ -167,7 +167,7 @@ function isRecord(value: unknown): value is JsonRecord {
 function requiredString(record: JsonRecord, key: string): string {
   const value = record[key];
   if (typeof value !== "string") {
-    throw new Error(`unexpected AWS documentation search response: ${key} must be a string`);
+    throw new TypeError(`unexpected AWS documentation search response: ${key} must be a string`);
   }
   return value;
 }
@@ -176,7 +176,7 @@ function optionalString(record: JsonRecord, key: string): string {
   const value = record[key];
   if (value === undefined || value === null) return "";
   if (typeof value !== "string") {
-    throw new Error(
+    throw new TypeError(
       `unexpected AWS documentation search response: ${key} must be a string or null`,
     );
   }
@@ -195,7 +195,7 @@ function optionalBoolean(record: JsonRecord, key: string): boolean | null {
 
 function contextFacet(context: unknown, key: string): string | null {
   if (!Array.isArray(context)) {
-    throw new Error("unexpected AWS documentation search response: context must be an array");
+    throw new TypeError("unexpected AWS documentation search response: context must be an array");
   }
   for (const attribute of context) {
     if (isRecord(attribute) && attribute.key === key && typeof attribute.value === "string") {
@@ -381,6 +381,16 @@ function retryDelayMs(response: Response, attempt: number): number {
   return 250 * 2 ** attempt;
 }
 
+function signalWithTimeout(signal?: AbortSignal): AbortSignal {
+  return signal
+    ? AbortSignal.any([signal, AbortSignal.timeout(SEARCH_TIMEOUT_MS)])
+    : AbortSignal.timeout(SEARCH_TIMEOUT_MS);
+}
+
+async function waitBeforeRetry(delayMs: number, signal?: AbortSignal): Promise<void> {
+  if (delayMs > 0) await sleep(delayMs, undefined, signal ? { signal } : undefined);
+}
+
 async function fetchWithRetries(
   fetcher: Fetcher,
   input: string | URL,
@@ -389,23 +399,19 @@ async function fetchWithRetries(
 ): Promise<Response> {
   for (let attempt = 0; attempt < RETRY_ATTEMPTS; attempt += 1) {
     signal?.throwIfAborted();
-    const requestSignal = signal
-      ? AbortSignal.any([signal, AbortSignal.timeout(SEARCH_TIMEOUT_MS)])
-      : AbortSignal.timeout(SEARCH_TIMEOUT_MS);
     try {
-      const response = await fetcher(input, { ...init, signal: requestSignal });
+      const response = await fetcher(input, { ...init, signal: signalWithTimeout(signal) });
       if (!RETRYABLE_STATUS_CODES.has(response.status) || attempt === RETRY_ATTEMPTS - 1) {
         return response;
       }
-      const delay = retryDelayMs(response, attempt);
       await response.body?.cancel();
-      if (delay > 0) await sleep(delay, undefined, signal ? { signal } : undefined);
+      await waitBeforeRetry(retryDelayMs(response, attempt), signal);
     } catch (error) {
       signal?.throwIfAborted();
       if (attempt === RETRY_ATTEMPTS - 1) {
         throw error instanceof Error ? error : new Error(String(error));
       }
-      await sleep(250 * 2 ** attempt, undefined, signal ? { signal } : undefined);
+      await waitBeforeRetry(250 * 2 ** attempt, signal);
     }
   }
   throw new Error("AWS documentation request exhausted its retries");
@@ -785,6 +791,6 @@ export function createAwsDocsSearchTool(fetcher: Fetcher = fetch) {
   });
 }
 
-export default function (pi: ExtensionAPI) {
+export default function awsDocsExtension(pi: ExtensionAPI) {
   pi.registerTool(createAwsDocsSearchTool());
 }

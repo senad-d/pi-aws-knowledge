@@ -422,13 +422,13 @@ void test("normalizes optional metadata and ranks metadata matches before unmatc
   assert.equal(response.results[1]?.sourceCreatedAt, null);
 });
 
-const INVALID_RESPONSES: Array<[string, unknown, RegExp]> = [
+const INVALID_RESPONSES: Array<[string, unknown, RegExp | { name: string; message: RegExp }]> = [
   ["a non-object suggestion", null, /invalid suggestion/],
   ["a missing suggestion payload", {}, /invalid suggestion/],
   [
     "a non-string title",
     { textExcerptSuggestion: { ...DEFAULT_SUGGESTION.textExcerptSuggestion, title: 1 } },
-    /title must be a string/,
+    { name: "TypeError", message: /title must be a string/ },
   ],
   [
     "a malformed link",
@@ -438,7 +438,7 @@ const INVALID_RESPONSES: Array<[string, unknown, RegExp]> = [
   [
     "a non-string summary",
     { textExcerptSuggestion: { ...DEFAULT_SUGGESTION.textExcerptSuggestion, summary: 1 } },
-    /summary must be a string or null/,
+    { name: "TypeError", message: /summary must be a string or null/ },
   ],
   [
     "a non-string excerpt",
@@ -450,7 +450,7 @@ const INVALID_RESPONSES: Array<[string, unknown, RegExp]> = [
   [
     "non-array context",
     { textExcerptSuggestion: { ...DEFAULT_SUGGESTION.textExcerptSuggestion, context: {} } },
-    /context must be an array/,
+    { name: "TypeError", message: /context must be an array/ },
   ],
 ];
 
