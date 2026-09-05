@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
@@ -13,36 +13,7 @@ import extension, {
   type AwsDocsSearchInput,
 } from "../src/index.ts";
 
-const DEFAULT_SUGGESTION = {
-  textExcerptSuggestion: {
-    title: "IAM least privilege",
-    link: "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html",
-    summary: "Grant only required permissions.",
-    suggestionBody: "Security best practices",
-    context: [
-      { key: "aws-docs-search-product", value: "AWS Identity and Access Management" },
-      { key: "aws-docs-search-guide", value: "User Guide" },
-    ],
-  },
-};
-
-function searchPayload(suggestions: unknown[] = [DEFAULT_SUGGESTION]): string {
-  return JSON.stringify({
-    queryId: "query-1",
-    suggestions,
-    facets: {
-      "aws-docs-search-guide": ["User Guide"],
-      "aws-docs-search-product": ["AWS Identity and Access Management"],
-    },
-  });
-}
-
-function jsonResponse(body = searchPayload(), init: ResponseInit = { status: 200 }): Response {
-  return new Response(body, {
-    ...init,
-    headers: { "content-type": "application/json", ...init.headers },
-  });
-}
+import { DEFAULT_SUGGESTION, jsonResponse, searchPayload } from "./helpers.ts";
 
 void test("exports a Pi extension factory", () => {
   assert.equal(typeof extension, "function");
@@ -640,7 +611,7 @@ void test("refreshes the cache when its TTL is zero", async () => {
   }
 });
 
-void test("formats complete non-truncated tool output", async () => {
+void test("formats complete non-truncated tool output", async (t) => {
   const fetcher = (input: string | URL): Promise<Response> => {
     if (input.toString() === "https://proxy.search.docs.aws.com/search") {
       return Promise.resolve(jsonResponse());
@@ -658,6 +629,9 @@ void test("formats complete non-truncated tool output", async () => {
     undefined,
     {} as ExtensionContext,
   );
+  const { fullOutputPath } = result.details;
+  assert.ok(fullOutputPath);
+  t.after(() => rm(dirname(fullOutputPath), { recursive: true, force: true }));
   const content = result.content[0];
   if (content?.type !== "text") assert.fail("tool result must contain text");
 
@@ -746,4 +720,246 @@ void test("truncates oversized tool output and saves the full result", async () 
   assert.ok(details.fullOutputPath);
   assert.match(await readFile(details.fullOutputPath, "utf8"), /-end/);
   await rm(dirname(details.fullOutputPath), { recursive: true });
+});
+
+function redirectResponse(status: number, location: string | null, cancel: () => void): Response {
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(Uint8Array.of(0));
+    },
+    pull(controller) {
+      controller.close();
+    },
+    cancel,
+  });
+  return new Response(body, { status, headers: location === null ? {} : { location } });
+}
+
+void test("blocks unsafe document redirects before requesting the destination", async () => {
+  const locations = [
+    "http://127.0.0.1:8765/internal",
+    "http://docs.aws.amazon.com/insecure",
+    "https://example.com/external",
+    "//docs.aws.amazon.com.example.com/spoofed",
+    "https://proxy.search.docs.aws.com/search",
+    "https://docs.aws.amazon.com@evil.example/credentials",
+    "https://user:password@docs.aws.amazon.com/private",
+    "https://docs.aws.amazon.com:8443/other-port",
+    "file:///etc/passwd",
+    "https://[invalid",
+    null,
+  ];
+  for (const location of locations) {
+    const requests: Array<[string, RequestInit["redirect"]]> = [];
+    let cancelled = 0;
+    const fetcher = (input: string | URL, init?: RequestInit): Promise<Response> => {
+      const url = input.toString();
+      requests.push([url, init?.redirect]);
+      if (url.startsWith("https://proxy.search.docs.aws.com/")) {
+        return Promise.resolve(jsonResponse());
+      }
+      if (!url.includes("/redirected/")) {
+        const path = `/redirected/page.${url.endsWith(".md") ? "md" : "html"}`;
+        return Promise.resolve(new Response(null, { status: 302, headers: { location: path } }));
+      }
+      return Promise.resolve(
+        redirectResponse(307, location, () => {
+          cancelled += 1;
+        }),
+      );
+    };
+    const response = await searchAwsDocumentation(
+      { query: "IAM", download: 1, noCache: true },
+      fetcher,
+    );
+    assert.deepEqual(
+      requests,
+      [
+        ["https://proxy.search.docs.aws.com/search", "manual"],
+        ["https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.md", "manual"],
+        ["https://docs.aws.amazon.com/redirected/page.md", "manual"],
+        [DEFAULT_SUGGESTION.textExcerptSuggestion.link, "manual"],
+        ["https://docs.aws.amazon.com/redirected/page.html", "manual"],
+      ],
+      String(location),
+    );
+    assert.equal(cancelled, 2);
+    assert.deepEqual(response.documents, []);
+    assert.equal(response.documentErrors.length, 1);
+    assert.match(
+      response.documentErrors[0]?.error ?? "",
+      /AWS docs host|link must be a URL|redirect.*Location/,
+    );
+  }
+});
+
+void test("follows AWS document redirects and caches the final validated URL", async () => {
+  const cacheDirectory = await mkdtemp(join(tmpdir(), "pi-aws-redirect-test-"));
+  try {
+    for (const status of [301, 302, 303, 307, 308]) {
+      const requests: string[] = [];
+      const fetcher = (input: string | URL): Promise<Response> => {
+        const url = input.toString();
+        requests.push(url);
+        if (url === "https://proxy.search.docs.aws.com/search")
+          return Promise.resolve(jsonResponse());
+        if (url.endsWith("best-practices.md")) {
+          return Promise.resolve(
+            new Response(null, {
+              status,
+              headers: { location: "./moved.md?locale=en_us#section" },
+            }),
+          );
+        }
+        if (url.includes("/moved.md")) {
+          return Promise.resolve(
+            new Response(null, {
+              status,
+              headers: { location: "//docs.aws.com:443/final.md?locale=en_us#section" },
+            }),
+          );
+        }
+        return Promise.resolve(
+          new Response("# Final AWS source", {
+            headers: { "content-type": "text/markdown" },
+          }),
+        );
+      };
+      const first = await searchAwsDocumentation(
+        { query: "IAM", download: 1, cacheTtlSeconds: 0 },
+        fetcher,
+        undefined,
+        cacheDirectory,
+      );
+      const second = await searchAwsDocumentation(
+        { query: "IAM", download: 1 },
+        fetcher,
+        undefined,
+        cacheDirectory,
+      );
+      assert.deepEqual(requests, [
+        "https://proxy.search.docs.aws.com/search",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.md",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/moved.md?locale=en_us",
+        "https://docs.aws.com/final.md?locale=en_us",
+        "https://proxy.search.docs.aws.com/search",
+      ]);
+      assert.equal(first.documents[0]?.cache, "miss");
+      assert.equal(first.documents[0]?.fetchedUrl, "https://docs.aws.com/final.md?locale=en_us");
+      assert.equal(first.documents[0]?.searchUrl, DEFAULT_SUGGESTION.textExcerptSuggestion.link);
+      assert.deepEqual(second.documents, [{ ...first.documents[0], cache: "hit" }]);
+    }
+  } finally {
+    await rm(cacheDirectory, { recursive: true });
+  }
+});
+
+void test("records the final URL when the HTML fallback redirects", async () => {
+  const fetcher = (input: string | URL): Promise<Response> => {
+    const url = input.toString();
+    if (url === "https://proxy.search.docs.aws.com/search") return Promise.resolve(jsonResponse());
+    if (url.endsWith(".md")) return Promise.resolve(new Response(null, { status: 404 }));
+    if (url.endsWith("best-practices.html")) {
+      return Promise.resolve(
+        new Response(null, { status: 302, headers: { location: "/final.html" } }),
+      );
+    }
+    return Promise.resolve(
+      new Response("<p>Final AWS source</p>", {
+        headers: { "content-type": "text/html" },
+      }),
+    );
+  };
+  const response = await searchAwsDocumentation(
+    { query: "IAM", download: 1, noCache: true },
+    fetcher,
+  );
+  assert.equal(response.documents[0]?.fetchedUrl, "https://docs.aws.amazon.com/final.html");
+  assert.equal(response.documents[0]?.format, "html");
+});
+
+void test("bounds document redirect loops without retrying policy failures", async () => {
+  let documentRequests = 0;
+  let cancelled = 0;
+  const fetcher = (input: string | URL): Promise<Response> => {
+    if (input.toString() === "https://proxy.search.docs.aws.com/search")
+      return Promise.resolve(jsonResponse());
+    documentRequests += 1;
+    return Promise.resolve(
+      redirectResponse(302, input.toString(), () => {
+        cancelled += 1;
+      }),
+    );
+  };
+  const response = await searchAwsDocumentation(
+    { query: "IAM", download: 1, noCache: true },
+    fetcher,
+  );
+  assert.equal(documentRequests, 12); // Original + five hops, for Markdown and HTML.
+  assert.equal(cancelled, documentRequests);
+  assert.deepEqual(response.documents, []);
+  assert.match(response.documentErrors[0]?.error ?? "", /exceeded 5 redirects/);
+});
+
+void test("rejects search redirects without forwarding POST inputs", async () => {
+  for (const status of [301, 302, 303, 307, 308]) {
+    for (const location of [
+      "/other-search",
+      "http://127.0.0.1/internal",
+      "https://docs.aws.com/page",
+    ]) {
+      const requests: Array<[string, RequestInit["redirect"]]> = [];
+      let cancelled = 0;
+      const fetcher = (input: string | URL, init?: RequestInit): Promise<Response> => {
+        requests.push([input.toString(), init?.redirect]);
+        return Promise.resolve(
+          redirectResponse(status, location, () => {
+            cancelled += 1;
+          }),
+        );
+      };
+      await assert.rejects(
+        searchAwsDocumentation(
+          { query: "IAM", identity: "test-identity", session: "test-session" },
+          fetcher,
+        ),
+        /AWS documentation search redirects are not allowed/,
+      );
+      assert.deepEqual(requests, [
+        ["https://proxy.search.docs.aws.com/search?session=test-session", "manual"],
+      ]);
+      assert.equal(cancelled, 1);
+    }
+  }
+});
+
+void test("refetches cache entries written before redirect validation", async () => {
+  const cacheDirectory = await mkdtemp(join(tmpdir(), "pi-aws-legacy-cache-test-"));
+  let documentRequests = 0;
+  const fetcher = (input: string | URL): Promise<Response> => {
+    if (input.toString() === "https://proxy.search.docs.aws.com/search")
+      return Promise.resolve(jsonResponse());
+    documentRequests += 1;
+    return Promise.resolve(
+      new Response(`# request ${documentRequests}`, {
+        headers: { "content-type": "text/markdown" },
+      }),
+    );
+  };
+  try {
+    const input = { query: "IAM", download: 1 };
+    await searchAwsDocumentation(input, fetcher, undefined, cacheDirectory);
+    const [entry] = await readdir(cacheDirectory);
+    assert.ok(entry);
+    const path = join(cacheDirectory, entry, "metadata.json");
+    const metadata = JSON.parse(await readFile(path, "utf8")) as { version: number };
+    metadata.version = 1;
+    await writeFile(path, JSON.stringify(metadata));
+    const response = await searchAwsDocumentation(input, fetcher, undefined, cacheDirectory);
+    assert.equal(documentRequests, 2);
+    assert.equal(response.documents[0]?.cache, "miss");
+    assert.equal(response.documents[0]?.content, "# request 2");
+  } finally {
+    await rm(cacheDirectory, { recursive: true });
+  }
 });

@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, mkdtemp, readFile, rename, stat, writeFile } from "node:fs/promises";
+import { addAbortListener } from "node:events";
+import { mkdir, mkdtemp, open, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -13,11 +14,16 @@ import {
   truncateHead,
   withFileMutationQueue,
   type ExtensionAPI,
+  type TruncationResult,
 } from "@earendil-works/pi-coding-agent";
+
+import { formatSearchResponse } from "./output.ts";
 
 const SEARCH_ENDPOINT = "https://proxy.search.docs.aws.com/search";
 const SEARCH_TIMEOUT_MS = 45_000;
 const RETRY_ATTEMPTS = 3;
+const MAX_DOCUMENT_REDIRECTS = 5;
+const REDIRECT_STATUS_CODES = new Set([301, 302, 303, 307, 308]);
 const MAX_RETRY_DELAY_MS = 30_000;
 const MAX_SEARCH_RESPONSE_BYTES = 2 * 1024 * 1024;
 const MAX_DOCUMENT_BYTES = 5 * 1024 * 1024;
@@ -109,7 +115,8 @@ export interface AwsDocsDocument {
   format: "markdown" | "html";
   contentType: string;
   content: string;
-  cache: "hit" | "miss" | "disabled";
+  cache: "hit" | "miss" | "disabled" | "error";
+  cacheWarning?: string;
 }
 
 export interface AwsDocsDocumentError {
@@ -131,8 +138,14 @@ export interface AwsDocsSearchResponse {
   documentErrors: AwsDocsDocumentError[];
 }
 
+export interface AwsDocsSearchToolDetails extends Omit<AwsDocsSearchResponse, "documents"> {
+  documents: Omit<AwsDocsDocument, "content">[];
+  truncation?: Omit<TruncationResult, "content">;
+  fullOutputPath?: string;
+}
+
 type UnrankedResult = Omit<AwsDocsSearchResult, "rank">;
-type DownloadedDocument = Omit<AwsDocsDocument, "cache">;
+type DownloadedDocument = Omit<AwsDocsDocument, "cache" | "cacheWarning">;
 type JsonRecord = Record<string, unknown>;
 
 interface DocumentCacheOptions {
@@ -141,8 +154,7 @@ interface DocumentCacheOptions {
   ttlSeconds: number;
 }
 
-interface CacheMetadata {
-  version: 1;
+type CacheMetadata = {
   sourceUrl: string;
   fetchedUrl: string;
   format: "markdown" | "html";
@@ -150,7 +162,7 @@ interface CacheMetadata {
   fetchedAt: number;
   bytes: number;
   sha256: string;
-}
+} & ({ version: 2 } | { version: 3; bodyFile: string });
 
 export function defaultAwsDocsCacheDirectory(environment: NodeJS.ProcessEnv = process.env): string {
   const configured = environment.AWS_DOCS_CACHE_DIR;
@@ -239,15 +251,18 @@ function compareResults(left: UnrankedResult, right: UnrankedResult): number {
   );
 }
 
-function awsDocumentationUrl(value: string): string {
+function awsDocumentationUrl(value: string, base?: URL): string {
   let url: URL;
   try {
-    url = new URL(value);
+    url = new URL(value, base);
   } catch {
     throw new Error("unexpected AWS documentation search response: link must be a URL");
   }
   if (
     url.protocol !== "https:" ||
+    url.port !== "" ||
+    url.username !== "" ||
+    url.password !== "" ||
     (url.hostname !== "docs.aws.amazon.com" && url.hostname !== "docs.aws.com")
   ) {
     throw new Error("unexpected AWS documentation search response: link must use an AWS docs host");
@@ -366,7 +381,8 @@ function parseResponseBody(body: string, status: number): unknown {
   }
 }
 
-function retryDelayMs(response: Response, attempt: number): number {
+function retryDelayMs(response: Response | undefined, attempt: number): number {
+  if (!response || !RETRYABLE_STATUS_CODES.has(response.status)) return 250 * 2 ** attempt;
   const retryAfter = response.headers.get("retry-after");
   if (retryAfter !== null) {
     const seconds = Number(retryAfter);
@@ -388,31 +404,78 @@ function signalWithTimeout(signal?: AbortSignal): AbortSignal {
 }
 
 async function waitBeforeRetry(delayMs: number, signal?: AbortSignal): Promise<void> {
-  if (delayMs > 0) await sleep(delayMs, undefined, signal ? { signal } : undefined);
+  try {
+    if (delayMs > 0) await sleep(delayMs, undefined, signal ? { signal } : undefined);
+  } catch (error) {
+    signal?.throwIfAborted();
+    throw error;
+  }
+}
+
+async function readAttemptBody(
+  response: Response,
+  kind: "search" | "markdown" | "document",
+): Promise<string> {
+  if (REDIRECT_STATUS_CODES.has(response.status)) return "";
+  if (kind === "search") return readResponseText(response, MAX_SEARCH_RESPONSE_BYTES);
+  const format = responseFormat(response);
+  if (!response.ok || format === null || (kind === "markdown" && format !== "markdown")) return "";
+  return readResponseText(response, MAX_DOCUMENT_BYTES);
+}
+
+function isPermanentRequestError(error: unknown, attemptSignal: AbortSignal): boolean {
+  return (
+    error instanceof RangeError ||
+    (error instanceof Error && error.name === "AbortError" && !attemptSignal.aborted)
+  );
+}
+
+async function cancelResponseBody(response?: Response): Promise<void> {
+  try {
+    // Readers release their locks first; every attempt owns its response cleanup.
+    await response?.body?.cancel();
+  } catch {
+    // Cleanup must not mask the result/error or change retry and redirect decisions.
+  }
 }
 
 async function fetchWithRetries(
   fetcher: Fetcher,
   input: string | URL,
   init: RequestInit,
+  kind: "search" | "markdown" | "document",
   signal?: AbortSignal,
-): Promise<Response> {
+): Promise<{ response: Response; content: string }> {
   for (let attempt = 0; attempt < RETRY_ATTEMPTS; attempt += 1) {
     signal?.throwIfAborted();
+    const attemptSignal = signalWithTimeout(signal);
+    let retryableStatus = true;
+    let response: Response | undefined;
     try {
-      const response = await fetcher(input, { ...init, signal: signalWithTimeout(signal) });
+      response = await fetcher(input, {
+        ...init,
+        redirect: "manual",
+        signal: attemptSignal,
+      });
+      retryableStatus = response.ok || RETRYABLE_STATUS_CODES.has(response.status);
       if (!RETRYABLE_STATUS_CODES.has(response.status) || attempt === RETRY_ATTEMPTS - 1) {
-        return response;
+        const content = await readAttemptBody(response, kind);
+        attemptSignal.throwIfAborted();
+        return { response, content };
       }
-      await response.body?.cancel();
-      await waitBeforeRetry(retryDelayMs(response, attempt), signal);
     } catch (error) {
       signal?.throwIfAborted();
-      if (attempt === RETRY_ATTEMPTS - 1) {
-        throw error instanceof Error ? error : new Error(String(error));
+      if (
+        !retryableStatus ||
+        isPermanentRequestError(error, attemptSignal) ||
+        attempt === RETRY_ATTEMPTS - 1
+      ) {
+        throw error instanceof Error ? error : new Error(errorMessage(error));
       }
-      await waitBeforeRetry(250 * 2 ** attempt, signal);
+    } finally {
+      await cancelResponseBody(response);
     }
+    await waitBeforeRetry(retryDelayMs(response, attempt), signal);
   }
   throw new Error("AWS documentation request exhausted its retries");
 }
@@ -420,7 +483,7 @@ async function fetchWithRetries(
 async function readResponseText(response: Response, maximumBytes: number): Promise<string> {
   const declaredLength = Number(response.headers.get("content-length"));
   if (Number.isFinite(declaredLength) && declaredLength > maximumBytes) {
-    throw new Error(`AWS response exceeds the ${formatSize(maximumBytes)} limit`);
+    throw new RangeError(`AWS response exceeds the ${formatSize(maximumBytes)} limit`);
   }
   if (response.body === null) return "";
 
@@ -428,18 +491,21 @@ async function readResponseText(response: Response, maximumBytes: number): Promi
   const decoder = new TextDecoder();
   let bytes = 0;
   let text = "";
-  while (true) {
-    const chunk = await reader.read();
-    if (chunk.done) break;
-    const value = chunk.value as Uint8Array;
-    bytes += value.byteLength;
-    if (bytes > maximumBytes) {
-      await reader.cancel();
-      throw new Error(`AWS response exceeds the ${formatSize(maximumBytes)} limit`);
+  try {
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      const value = chunk.value as Uint8Array;
+      bytes += value.byteLength;
+      if (bytes > maximumBytes) {
+        throw new RangeError(`AWS response exceeds the ${formatSize(maximumBytes)} limit`);
+      }
+      text += decoder.decode(value, { stream: true });
     }
-    text += decoder.decode(value, { stream: true });
+    return text + decoder.decode();
+  } finally {
+    reader.releaseLock();
   }
-  return text + decoder.decode();
 }
 
 function sourceUrlWithoutHash(value: string): URL {
@@ -462,6 +528,26 @@ function responseFormat(response: Response): "markdown" | "html" | null {
   return null;
 }
 
+async function fetchDocumentResponse(
+  fetcher: Fetcher,
+  url: URL,
+  kind: "markdown" | "document",
+  signal?: AbortSignal,
+): Promise<{ response: Response; content: string; fetchedUrl: string }> {
+  for (let redirects = 0; ; redirects += 1) {
+    const { response, content } = await fetchWithRetries(fetcher, url, {}, kind, signal);
+    if (!REDIRECT_STATUS_CODES.has(response.status)) {
+      return { response, content, fetchedUrl: url.toString() };
+    }
+    if (redirects === MAX_DOCUMENT_REDIRECTS) {
+      throw new Error(`AWS document exceeded ${MAX_DOCUMENT_REDIRECTS} redirects`);
+    }
+    const location = response.headers.get("location");
+    if (location === null) throw new Error("AWS document redirect is missing Location");
+    url = sourceUrlWithoutHash(awsDocumentationUrl(location, url));
+  }
+}
+
 async function fetchDocument(
   result: AwsDocsSearchResult,
   fetcher: Fetcher,
@@ -471,24 +557,31 @@ async function fetchDocument(
   const authoredMarkdownUrl = markdownUrl(sourceUrl);
   if (authoredMarkdownUrl !== null) {
     try {
-      const markdownResponse = await fetchWithRetries(fetcher, authoredMarkdownUrl, {}, signal);
+      const {
+        response: markdownResponse,
+        content,
+        fetchedUrl,
+      } = await fetchDocumentResponse(fetcher, authoredMarkdownUrl, "markdown", signal);
       if (markdownResponse.ok && responseFormat(markdownResponse) === "markdown") {
         return {
           rank: result.rank,
           searchUrl: result.url,
-          fetchedUrl: authoredMarkdownUrl.toString(),
+          fetchedUrl,
           format: "markdown",
           contentType: markdownResponse.headers.get("content-type") ?? "text/markdown",
-          content: await readResponseText(markdownResponse, MAX_DOCUMENT_BYTES),
+          content,
         };
       }
-      await markdownResponse.body?.cancel();
     } catch {
       signal?.throwIfAborted();
     }
   }
 
-  const sourceResponse = await fetchWithRetries(fetcher, sourceUrl, {}, signal);
+  const {
+    response: sourceResponse,
+    content,
+    fetchedUrl,
+  } = await fetchDocumentResponse(fetcher, sourceUrl, "document", signal);
   const format = responseFormat(sourceResponse);
   if (!sourceResponse.ok || format === null) {
     throw new Error(
@@ -498,10 +591,10 @@ async function fetchDocument(
   return {
     rank: result.rank,
     searchUrl: result.url,
-    fetchedUrl: sourceUrl.toString(),
+    fetchedUrl,
     format,
     contentType: sourceResponse.headers.get("content-type") ?? `text/${format}`,
-    content: await readResponseText(sourceResponse, MAX_DOCUMENT_BYTES),
+    content,
   };
 }
 
@@ -516,7 +609,10 @@ function cacheEntryDirectory(cacheDirectory: string, sourceUrl: string): string 
 function isCacheMetadata(value: unknown): value is CacheMetadata {
   if (!isRecord(value)) return false;
   return (
-    value.version === 1 &&
+    (value.version === 2 ||
+      (value.version === 3 &&
+        typeof value.bodyFile === "string" &&
+        /^body\.\d+-[0-9a-f-]{36}$/.test(value.bodyFile))) &&
     typeof value.sourceUrl === "string" &&
     typeof value.fetchedUrl === "string" &&
     (value.format === "markdown" || value.format === "html") &&
@@ -534,17 +630,23 @@ async function readCachedDocument(
   result: AwsDocsSearchResult,
   sourceUrl: string,
   ttlSeconds: number,
+  signal?: AbortSignal,
 ): Promise<AwsDocsDocument | null> {
+  signal?.throwIfAborted();
   if (ttlSeconds === 0) return null;
   try {
     const metadataValue = JSON.parse(
-      await readFile(join(entryDirectory, "metadata.json"), "utf8"),
+      await readFile(join(entryDirectory, "metadata.json"), { encoding: "utf8", signal }),
     ) as unknown;
     if (!isCacheMetadata(metadataValue) || metadataValue.sourceUrl !== sourceUrl) return null;
     const age = Date.now() - metadataValue.fetchedAt;
     if (age < 0 || age > ttlSeconds * 1000) return null;
 
-    const bodyPath = join(entryDirectory, "body");
+    const bodyPath = join(
+      entryDirectory,
+      metadataValue.version === 2 ? "body" : metadataValue.bodyFile,
+    );
+    signal?.throwIfAborted();
     const bodyInfo = await stat(bodyPath);
     if (
       !bodyInfo.isFile() ||
@@ -553,7 +655,9 @@ async function readCachedDocument(
     ) {
       return null;
     }
-    const body = await readFile(bodyPath);
+    signal?.throwIfAborted();
+    const body = await readFile(bodyPath, { signal });
+    signal?.throwIfAborted();
     if (sha256(body) !== metadataValue.sha256) return null;
     awsDocumentationUrl(metadataValue.fetchedUrl);
 
@@ -567,24 +671,60 @@ async function readCachedDocument(
       cache: "hit",
     };
   } catch {
+    signal?.throwIfAborted();
     return null;
   }
+}
+
+async function writeCacheFile(
+  path: string,
+  content: string,
+  cleanupPaths: string[],
+  signal?: AbortSignal,
+): Promise<void> {
+  signal?.throwIfAborted();
+  const file = await open(path, "wx", 0o600);
+  cleanupPaths.push(path);
+  try {
+    signal?.throwIfAborted();
+    await file.writeFile(content, { encoding: "utf8", signal });
+  } catch (error) {
+    await file.close().catch(() => undefined);
+    throw error;
+  }
+  await file.close();
 }
 
 async function writeCachedDocument(
   entryDirectory: string,
   sourceUrl: string,
   document: DownloadedDocument,
+  signal?: AbortSignal,
 ): Promise<void> {
+  signal?.throwIfAborted();
   await mkdir(entryDirectory, { recursive: true, mode: 0o700 });
+  signal?.throwIfAborted();
   const suffix = `${process.pid}-${randomUUID()}`;
-  const bodyPath = join(entryDirectory, "body");
+  const bodyFile = `body.${suffix}`;
+  const bodyPath = join(entryDirectory, bodyFile);
   const metadataPath = join(entryDirectory, "metadata.json");
-  const temporaryBodyPath = `${bodyPath}.${suffix}.tmp`;
   const temporaryMetadataPath = `${metadataPath}.${suffix}.tmp`;
+  let previousBodyPath: string | undefined;
+  try {
+    const previous = JSON.parse(
+      await readFile(metadataPath, { encoding: "utf8", signal }),
+    ) as unknown;
+    if (isCacheMetadata(previous) && previous.sourceUrl === sourceUrl) {
+      previousBodyPath = join(entryDirectory, previous.version === 2 ? "body" : previous.bodyFile);
+    }
+  } catch {
+    signal?.throwIfAborted();
+    // Unreadable metadata is not evidence that any existing file is ours to remove.
+  }
   const bytes = Buffer.byteLength(document.content);
   const metadata: CacheMetadata = {
-    version: 1,
+    version: 3,
+    bodyFile,
     sourceUrl,
     fetchedUrl: document.fetchedUrl,
     format: document.format,
@@ -594,13 +734,50 @@ async function writeCachedDocument(
     sha256: sha256(document.content),
   };
 
-  await writeFile(temporaryBodyPath, document.content, { encoding: "utf8", mode: 0o600 });
-  await writeFile(temporaryMetadataPath, `${JSON.stringify(metadata, null, 2)}\n`, {
-    encoding: "utf8",
-    mode: 0o600,
+  // ponytail: crashes/concurrent processes can leave orphan bodies; add a sweep if disk growth matters.
+  let cleanupPaths: string[] = [];
+  try {
+    await writeCacheFile(bodyPath, document.content, cleanupPaths, signal);
+    await writeCacheFile(
+      temporaryMetadataPath,
+      `${JSON.stringify(metadata, null, 2)}\n`,
+      cleanupPaths,
+      signal,
+    );
+    signal?.throwIfAborted();
+    // Publish metadata last: a failed write never overwrites the previous entry's body.
+    await rename(temporaryMetadataPath, metadataPath);
+    cleanupPaths = previousBodyPath ? [previousBodyPath] : [];
+  } finally {
+    for (const path of cleanupPaths) {
+      try {
+        await unlink(path);
+      } catch {
+        // Best effort; cleanup must not discard a download or mask a cache-write error.
+      }
+    }
+  }
+}
+
+async function waitForCache(
+  operation: Promise<AwsDocsDocument>,
+  signal?: AbortSignal,
+): Promise<AwsDocsDocument> {
+  if (!signal) return operation;
+  let subscription: ReturnType<typeof addAbortListener> | undefined;
+  const cancelled = new Promise<never>((_resolve, reject) => {
+    // AbortSignal accepts non-Error reasons; preserve the caller's value verbatim.
+    // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+    subscription = addAbortListener(signal, () => reject(signal.reason));
   });
-  await rename(temporaryBodyPath, bodyPath);
-  await rename(temporaryMetadataPath, metadataPath);
+  try {
+    // Observe late rejection without releasing Pi's queue before work/cleanup finishes.
+    const result = await Promise.race([operation, cancelled]);
+    signal.throwIfAborted();
+    return result;
+  } finally {
+    subscription?.[Symbol.dispose]();
+  }
 }
 
 async function cachedDocument(
@@ -609,6 +786,7 @@ async function cachedDocument(
   cache: DocumentCacheOptions,
   signal?: AbortSignal,
 ): Promise<AwsDocsDocument> {
+  signal?.throwIfAborted();
   if (!cache.enabled) {
     return { ...(await fetchDocument(result, fetcher, signal)), cache: "disabled" };
   }
@@ -616,14 +794,34 @@ async function cachedDocument(
   const sourceUrl = sourceUrlWithoutHash(result.url).toString();
   const entryDirectory = cacheEntryDirectory(cache.directory, sourceUrl);
   const bodyPath = join(entryDirectory, "body");
-  return withFileMutationQueue(bodyPath, async () => {
-    const cached = await readCachedDocument(entryDirectory, result, sourceUrl, cache.ttlSeconds);
-    if (cached !== null) return cached;
+  let started = false;
+  let document: DownloadedDocument | undefined;
+  try {
+    const operation = withFileMutationQueue<AwsDocsDocument>(bodyPath, async () => {
+      signal?.throwIfAborted();
+      started = true;
+      const cached = await readCachedDocument(
+        entryDirectory,
+        result,
+        sourceUrl,
+        cache.ttlSeconds,
+        signal,
+      );
+      signal?.throwIfAborted();
+      if (cached !== null) return cached;
 
-    const document = await fetchDocument(result, fetcher, signal);
-    await writeCachedDocument(entryDirectory, sourceUrl, document);
-    return { ...document, cache: "miss" };
-  });
+      document = await fetchDocument(result, fetcher, signal);
+      await writeCachedDocument(entryDirectory, sourceUrl, document, signal);
+      signal?.throwIfAborted();
+      return { ...document, cache: "miss" };
+    });
+    return await waitForCache(operation, signal);
+  } catch (error) {
+    signal?.throwIfAborted();
+    if (started && document === undefined) throw error; // A download failure, not a cache failure.
+    document ??= await fetchDocument(result, fetcher, signal); // Queue setup can fail before fetching.
+    return { ...document, cache: "error", cacheWarning: errorMessage(error).slice(0, 500) };
+  }
 }
 
 function errorMessage(error: unknown): string {
@@ -639,7 +837,9 @@ async function downloadDocuments(
 ): Promise<void> {
   for (const result of response.results.slice(0, count)) {
     try {
-      response.documents.push(await cachedDocument(result, fetcher, cache, signal));
+      const document = await cachedDocument(result, fetcher, cache, signal);
+      signal?.throwIfAborted();
+      response.documents.push(document);
     } catch (error) {
       signal?.throwIfAborted();
       response.documentErrors.push({
@@ -658,7 +858,7 @@ export async function searchAwsDocumentation(
   cacheDirectory = defaultAwsDocsCacheDirectory(),
 ): Promise<AwsDocsSearchResponse> {
   validateInput(input);
-  const response = await fetchWithRetries(
+  const { response, content } = await fetchWithRetries(
     fetcher,
     buildSearchUrl(input.session),
     {
@@ -666,12 +866,13 @@ export async function searchAwsDocumentation(
       headers: { "content-type": "application/json" },
       body: JSON.stringify(buildRequest(input)),
     },
+    "search",
     signal,
   );
-  const payload = parseResponseBody(
-    await readResponseText(response, MAX_SEARCH_RESPONSE_BYTES),
-    response.status,
-  );
+  if (REDIRECT_STATUS_CODES.has(response.status)) {
+    throw new Error("AWS documentation search redirects are not allowed");
+  }
+  const payload = parseResponseBody(content, response.status);
   if (!response.ok) {
     const message =
       isRecord(payload) && typeof payload.message === "string"
@@ -695,62 +896,6 @@ export async function searchAwsDocumentation(
   return normalized;
 }
 
-function formatFacets(label: string, values: string[]): string {
-  if (values.length === 0) return `- ${label}: none`;
-  return `- ${label}: ${values.join("; ")}`;
-}
-
-function formatSearchResponse(response: AwsDocsSearchResponse): string {
-  const lines = [
-    `AWS documentation search for: ${response.query}`,
-    `Query ID: ${response.queryId}`,
-    `Returned ${response.suggestionsReturned} suggestion(s); included ${response.results.length}.`,
-    "",
-    "## Ranked results",
-  ];
-
-  if (response.results.length === 0) lines.push("No matching documentation found.");
-  for (const result of response.results) {
-    lines.push("", `${result.rank}. ${result.title}`, `   - Source: <${result.url}>`);
-    if (result.product) lines.push(`   - Product: ${result.product}`);
-    if (result.guide) lines.push(`   - Guide: ${result.guide}`);
-    if (result.preferenceMatch) lines.push(`   - Preferred-text match: ${result.preferenceMatch}`);
-    if (result.summary) lines.push(`   - Summary: ${result.summary}`);
-    if (result.excerpt) lines.push(`   - Matched excerpt: ${result.excerpt}`);
-  }
-
-  lines.push(
-    "",
-    "## Available facets",
-    formatFacets("Products", response.facets.products),
-    formatFacets("Guides", response.facets.guides),
-  );
-
-  if (response.documents.length > 0 || response.documentErrors.length > 0) {
-    lines.push("", "## Retrieved documents");
-  }
-  for (const document of response.documents) {
-    const title =
-      response.results.find((result) => result.rank === document.rank)?.title ?? "Document";
-    lines.push(
-      "",
-      `### Source ${document.rank}: ${title}`,
-      `- Search result: <${document.searchUrl}>`,
-      `- Retrieved from: <${document.fetchedUrl}>`,
-      `- Format: ${document.format}`,
-      `- Cache: ${document.cache}`,
-      "",
-      `<aws-document-source format="${document.format}">`,
-      document.content,
-      "</aws-document-source>",
-    );
-  }
-  for (const failure of response.documentErrors) {
-    lines.push("", `- Source ${failure.rank} download failed: ${failure.error}`);
-  }
-  return lines.join("\n");
-}
-
 async function saveFullOutput(output: string): Promise<string> {
   const directory = await mkdtemp(join(tmpdir(), "pi-aws-docs-"));
   const path = join(directory, "search-results.txt");
@@ -762,7 +907,7 @@ export function createAwsDocsSearchTool(fetcher: Fetcher = fetch) {
   return defineTool({
     name: "aws_docs_search",
     label: "AWS Docs Search",
-    description: `Search the observed AWS documentation endpoint and optionally retrieve full AWS-authored Markdown or HTML. Returns ranked metadata, excerpts, exact facets, and source URLs. Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)}; full oversized output is saved to a temporary file.`,
+    description: `Search the observed AWS documentation endpoint and optionally retrieve full AWS-authored Markdown or HTML. Returns ranked metadata, excerpts, exact facets, and source URLs. Output is truncated to ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)}; complete output is saved to a temporary file whenever documents are retrieved or output is truncated.`,
     promptSnippet:
       "Search official AWS documentation and optionally retrieve full source documents",
     promptGuidelines: [
@@ -773,20 +918,26 @@ export function createAwsDocsSearchTool(fetcher: Fetcher = fetch) {
     async execute(_toolCallId, params, signal) {
       const response = await searchAwsDocumentation(params, fetcher, signal);
       const output = formatSearchResponse(response);
-      const truncation = truncateHead(output, {
+      const { content, ...truncation } = truncateHead(output, {
         maxLines: DEFAULT_MAX_LINES,
         maxBytes: DEFAULT_MAX_BYTES,
       });
-      if (!truncation.truncated) {
-        return { content: [{ type: "text", text: output }], details: response };
-      }
-
-      const fullOutputPath = await saveFullOutput(output);
-      const notice = `\n\n[Output truncated to ${truncation.outputLines} of ${truncation.totalLines} lines (${formatSize(truncation.outputBytes)} of ${formatSize(truncation.totalBytes)}). Full output: ${fullOutputPath}]`;
-      return {
-        content: [{ type: "text", text: truncation.content + notice }],
-        details: { ...response, truncation, fullOutputPath },
+      // Pi persists details too: keep bodies only in visible/saved output, not metadata.
+      const details: AwsDocsSearchToolDetails = {
+        ...response,
+        documents: response.documents.map(({ content: _content, ...metadata }) => metadata),
       };
+      let text = content;
+      if (truncation.truncated || response.documents.length > 0) {
+        details.fullOutputPath = await saveFullOutput(output);
+        signal?.throwIfAborted();
+        const notice = truncation.truncated
+          ? `Output truncated to ${truncation.outputLines} of ${truncation.totalLines} lines (${formatSize(truncation.outputBytes)} of ${formatSize(truncation.totalBytes)}). `
+          : "";
+        if (truncation.truncated) details.truncation = truncation;
+        text += `\n\n[${notice}Full output: ${details.fullOutputPath}]`;
+      }
+      return { content: [{ type: "text", text }], details };
     },
   });
 }

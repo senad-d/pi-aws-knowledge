@@ -1,6 +1,6 @@
 {
   "name": "pi-aws-knowledge",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A Pi extension for searching and retrieving official AWS documentation",
   "type": "module",
   "files": [
@@ -28,9 +28,9 @@
     "format": "biome format --write src tests package.json tsconfig.json biome.json eslint.config.js",
     "format:check": "biome format src tests package.json tsconfig.json biome.json eslint.config.js",
     "lint": "eslint src tests",
-    "smoke": "pi --no-extensions -e . --list-models",
-    "test": "node --test tests/index.test.ts",
-    "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-include='src/**/*.ts' --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info tests/index.test.ts",
+    "smoke": "node --test tests/smoke.test.ts",
+    "test": "node --test tests/index.test.ts tests/response.test.ts tests/cache.test.ts tests/output.test.ts",
+    "test:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-include='src/**/*.ts' --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info tests/index.test.ts tests/response.test.ts tests/cache.test.ts tests/output.test.ts",
     "test:live": "node --test tests/live.test.ts",
     "typecheck": "tsc --noEmit"
   },
