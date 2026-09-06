@@ -1,13 +1,16 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 
 import { DefaultResourceLoader, SettingsManager } from "@earendil-works/pi-coding-agent";
 
 const PACKAGE_ROOT = fileURLToPath(new URL("../", import.meta.url));
+const execFileAsync = promisify(execFile);
 
 async function checkPackage(packagePath: string): Promise<void> {
   const directory = await mkdtemp(join(tmpdir(), "pi-aws-smoke-loader-"));
@@ -42,6 +45,28 @@ void test("Pi loads the package manifest and registers aws_docs_search without r
   );
   await checkPackage(PACKAGE_ROOT);
   assert.equal(requests.mock.callCount(), 0);
+});
+
+void test("Pi loads the packed release without checkout files or network requests", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "pi-aws-smoke-pack-"));
+  const requests = t.mock.method(globalThis, "fetch", () =>
+    Promise.reject(new Error("The package-load smoke check must not make requests")),
+  );
+  try {
+    // Skip lifecycle scripts: release:check runs this test itself.
+    await execFileAsync("npm", ["pack", "--ignore-scripts", "--pack-destination", directory], {
+      cwd: PACKAGE_ROOT,
+    });
+    const tarballs = (await readdir(directory)).filter((name) => name.endsWith(".tgz"));
+    assert.equal(tarballs.length, 1);
+    const tarball = tarballs[0];
+    assert.ok(tarball);
+    await execFileAsync("tar", ["-xzf", join(directory, tarball), "-C", directory]);
+    await checkPackage(join(directory, "package"));
+    assert.equal(requests.mock.callCount(), 0);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 });
 
 void test("the smoke assertions reject load failures, broken entry points, and missing tools", async () => {

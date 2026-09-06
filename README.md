@@ -78,7 +78,7 @@ Pi decides when to call the tool from ordinary prompts. The extension does not a
 ### Requirements
 
 - Node.js `22.19.0` or newer
-- [Pi](https://pi.dev)
+- [Pi](https://pi.dev); package loading is tested with `@earendil-works/pi-coding-agent` `0.84.4`. Older versions have not been verified.
 - Network access to the AWS documentation endpoints
 
 Install Pi if needed:
@@ -377,7 +377,7 @@ npm run check
 4. Biome formatting checks;
 5. a Pi package-load smoke check.
 
-The smoke check uses Pi's `DefaultResourceLoader` to resolve this checkout's package manifest and execute its extension factories. It asserts zero load errors and registration of `aws_docs_search`, then verifies rejection of throwing/rejecting factories, broken imports/entry points, and missing tools using temporary packages. Temporary working/agent directories and in-memory settings isolate it from personal Pi configuration; no model session, credentials, or live requests are needed. A successful `--list-models` exit is not used as proof of loading.
+The smoke check uses Pi's `DefaultResourceLoader` to resolve both this checkout's package manifest and an extracted `npm pack --ignore-scripts` release tarball, then execute their extension factories. The tarball is loaded outside the checkout without copying source files or installing dependencies; Pi supplies its core peer dependencies. This check requires `npm` and `tar` on PATH. It asserts zero load errors and registration of `aws_docs_search`, then verifies rejection of throwing/rejecting factories, broken imports/entry points, and missing tools using temporary packages. Temporary working/agent directories and in-memory settings isolate it from personal Pi configuration; no model session, credentials, or live requests are needed. A successful `--list-models` exit is not used as proof of loading.
 
 Individual commands:
 
@@ -441,6 +441,18 @@ For the first release:
 6. Remove the `NPM_TOKEN` secret. Later releases authenticate through GitHub OIDC.
 
 Each release requires a new version in `package.json`. The workflow refuses to overwrite an existing npm version or Git tag.
+
+### Pi catalog discovery
+
+The [Pi package documentation](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/packages.md) specifies the `pi-package` npm keyword for gallery discovery. This package includes that keyword, an explicit `pi.extensions` entry, and an optional PNG preview. Repository metadata changes reach npm only after publishing a new version.
+
+If the package is missing from [catalog search](https://pi.dev/packages?name=pi-aws-knowledge), compare the [direct package page](https://pi.dev/packages/pi-aws-knowledge) with the published metadata:
+
+```bash
+npm view pi-aws-knowledge@latest version keywords pi license author --json
+```
+
+A working direct page with no catalog search match indicates a discovery discrepancy, not proof of an invalid extension. Report both URLs and the published version to Pi maintainers so they can investigate indexing. Changing the keyword when it is already present or republishing unchanged code is not a verified fix.
 
 ---
 
