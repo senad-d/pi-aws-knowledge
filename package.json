@@ -53,12 +53,12 @@
     "@earendil-works/pi-coding-agent": "*"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.11",
+    "@biomejs/biome": "2.5.15",
     "@eslint/js": "10.0.1",
-    "@types/node": "26.4.0",
-    "eslint": "10.9.1",
-    "globals": "17.12.0",
-    "typescript": "5.9.3",
-    "typescript-eslint": "8.69.0"
+    "@types/node": "26.6.4",
+    "eslint": "10.11.0",
+    "globals": "17.13.0",
+    "typescript": "7.0.2",
+    "typescript-eslint": "8.71.0"
   }
 }
